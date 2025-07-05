@@ -5,8 +5,7 @@
   inputs,
   ...
 }:
-with lib;
-with lib.custom; {
+with lib; {
   imports = with inputs; [
     home-manager.nixosModules.home-manager
   ];
