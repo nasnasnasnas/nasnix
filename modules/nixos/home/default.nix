@@ -4,8 +4,7 @@
   lib,
   inputs,
   ...
-}:
-with lib; {
+}: {
   imports = with inputs; [
     home-manager.nixosModules.home-manager
   ];
@@ -13,18 +12,18 @@ with lib; {
   config = {
     home.extraOptions = {
       home.stateVersion = config.system.stateVersion;
-      home.file = mkAliasDefinitions options.home.file;
-      xdg.enable = true;
-      xdg.configFile = mkAliasDefinitions options.home.configFile;
-      programs = mkAliasDefinitions options.home.programs;
+#      home.file = mkAliasDefinitions options.home.file;
+#      xdg.enable = true;
+#      xdg.configFile = mkAliasDefinitions options.home.configFile;
+#      programs = mkAliasDefinitions options.home.programs;
     };
 
     home-manager = {
       useUserPackages = true;
       useGlobalPackages = true;
 
-      users.${config.user.name} =
-        mkAliasDefinitions options.home.extraOptions;
+#      users.${config.user.name} =
+#        mkAliasDefinitions options.home.extraOptions;
     };
   };
 }
