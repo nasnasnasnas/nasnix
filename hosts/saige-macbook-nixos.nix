@@ -5,14 +5,16 @@
 }: {
   imports = [
       # Include the results of the hardware scan.
-      ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
+      # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
     ];
+
+    systemType = "aarch64-linux"; # This is used for the value of "system" in the flake.nix file.
 
     # Bootloader.
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
 
-    networking.hostName = "saige-macbook-nixos"; # Define your hostname.
+    # networking.hostName = "saige-macbook-nixos"; # Define your hostname. NOW DONE IN flake.nix
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
     # Configure network proxy if necessary
@@ -78,24 +80,13 @@
     # Enable touchpad support (enabled default in most desktopManager).
     # services.xserver.libinput.enable = true;
 
-    # TODO: is this needed with snowfall user management stuff ?
     users.users.saige = {
       isNormalUser = true;
       description = "Saige Szpunar";
-      #    extraGroups = [ "networkmanager" "wheel" ];
-      #    packages = with pkgs; [
-      #    #  thunderbird
-      #    ];
-    };
-
-    snowfallorg.users.saige = {
-      create = true;
-      admin = true;
-
-      home = {
-        enable = true;
-        config = {};
-      };
+      extraGroups = [ "networkmanager" "wheel" ];
+      packages = with pkgs; [
+      #  thunderbird
+      ];
     };
 
     # Install firefox.
