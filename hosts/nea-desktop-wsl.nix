@@ -1,14 +1,16 @@
 {
-  config,
-  pkgs,
-  ...
-}: {
-  imports = [
-      # Include the results of the hardware scan.
-      # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
-    ];
+  systemType = "x86_64-linux"; # This is used for the value of "system" in the flake.nix file.
+  __functor = self: {
+    config,
+    pkgs,
+    inputs,
+    ...
+  }: {
+    inherit (self) systemType;
 
-    systemType = "x86_64-linux"; # This is used for the value of "system" in the flake.nix file.
+    imports = [
+      inputs.nixos-wsl.nixosModules.default
+    ];
 
     wsl.enable = true;
     wsl.defaultUser = "nixos";
@@ -34,4 +36,5 @@
     # Before changing this value read the documentation for this option
     # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
     system.stateVersion = "24.11"; # Did you read the comment?
+  };
 }

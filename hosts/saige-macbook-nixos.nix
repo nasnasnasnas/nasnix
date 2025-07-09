@@ -1,14 +1,16 @@
 {
-  config,
-  pkgs,
-  ...
-}: {
-  imports = [
+  systemType = "aarch64-linux";
+  __functor = self: {
+    config,
+    pkgs,
+    ...
+  }: {
+    inherit (self) systemType;
+
+    imports = [
       # Include the results of the hardware scan.
       # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
     ];
-
-    systemType = "aarch64-linux"; # This is used for the value of "system" in the flake.nix file.
 
     # Bootloader.
     boot.loader.systemd-boot.enable = true;
@@ -83,9 +85,9 @@
     users.users.saige = {
       isNormalUser = true;
       description = "Saige Szpunar";
-      extraGroups = [ "networkmanager" "wheel" ];
+      extraGroups = ["networkmanager" "wheel"];
       packages = with pkgs; [
-      #  thunderbird
+        #  thunderbird
       ];
     };
 
@@ -130,4 +132,5 @@
     # Before changing this value read the documentation for this option
     # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
     system.stateVersion = "25.05"; # Did you read the comment?
+  };
 }
