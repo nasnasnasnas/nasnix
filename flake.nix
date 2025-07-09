@@ -41,10 +41,14 @@
       in
         nixpkgs.lib.pipe f [
           nixpkgs.lib.functionArgs
-          (builtins.mapAttrs (name: _:
+          (builtins.mapAttrs (name: hasDefault:
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then nixpkgs.legacyPackages.${loaded.systemType}
-            else inputs.${name}))
+            else if builtins.hasAttr name inputs
+            then inputs.${name}
+            else if hasDefault
+            then null # Let the function use its default value
+            else throw "Required argument '${name}' not found in inputs"))
           f
         ];
     };
