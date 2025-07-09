@@ -38,22 +38,15 @@
       loader = inputs: path: let
         loaded = import path;
         f = nixpkgs.lib.toFunction loaded;
-        args = nixpkgs.lib.functionArgs f;
-        resolvedArgs = builtins.mapAttrs (name: _:
-          if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
-          then nixpkgs.legacyPackages.${loaded.systemType}
-          else if name == "modulesPath"
-          then nixpkgs.lib.makeModulesPath (builtins.attrValues loaded.modules)
-          else if name == "nixosModules"
-          then nixpkgs.lib.makeNixosModules (builtins.attrValues loaded.modules)
-          else if name == "homeManagerModules"
-          then home-manager.lib.makeHomeManagerModules (builtins.attrValues loaded.modules)
-          else inputs.${name})
-        args;
       in
-        if args == {}
-        then loaded
-        else builtins.seq resolvedArgs (f resolvedArgs);
+        nixpkgs.lib.pipe f [
+          nixpkgs.lib.functionArgs
+          (builtins.mapAttrs (name: _:
+            if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
+            then nixpkgs.legacyPackages.${loaded.systemType}
+            else inputs.${name}))
+          f
+        ];
     };
   in {
     inherit lib;
