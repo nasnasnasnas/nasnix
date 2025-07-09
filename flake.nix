@@ -44,6 +44,8 @@
           (builtins.mapAttrs (name: hasDefault:
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then nixpkgs.legacyPackages.${loaded.systemType}
+            else if name == "modulesPath"
+            then "${nixpkgs}/nixos/modules"
             else if builtins.hasAttr name inputs
             then inputs.${name}
             else if hasDefault
