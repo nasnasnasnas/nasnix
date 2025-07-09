@@ -42,6 +42,12 @@
         resolvedArgs = builtins.mapAttrs (name: _:
           if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
           then nixpkgs.legacyPackages.${loaded.systemType}
+          else if name == "modulesPath"
+          then nixpkgs.lib.makeModulesPath (builtins.attrValues loaded.modules)
+          else if name == "nixosModules"
+          then nixpkgs.lib.makeNixosModules (builtins.attrValues loaded.modules)
+          else if name == "homeManagerModules"
+          then home-manager.lib.makeHomeManagerModules (builtins.attrValues loaded.modules)
           else inputs.${name})
         args;
       in
