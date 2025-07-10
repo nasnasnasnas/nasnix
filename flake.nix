@@ -63,7 +63,15 @@
         inherit (nixpkgs) lib;
       };
     };
+
+    importedUsers = haumea.lib.load {
+      src = ./users;
+      loader = haumea.lib.loaders.verbatim;
+    };
   in {
+    # Allows nix eval for debugging
+    inherit importedHosts importedModules importedUsers;
+
     formatter = builtins.listToAttrs (map (system: {
       name = system;
       value = nixpkgs.legacyPackages.${system}.alejandra;
@@ -76,29 +84,6 @@
             if builtins.hasAttr "systemType" configuration
             then configuration.systemType
             else "x86_64-linux"; # Default to x86_64-linux if not specified
-
-          importedUsers = haumea.lib.load {
-            src = ./users;
-            loader = haumea.lib.loaders.verbatim;
-            #            loader = inputs: path: let
-            #              loaded = import path;
-            #              f = nixpkgs.lib.toFunction loaded;
-            #            in
-            #              nixpkgs.lib.pipe f [
-            #                nixpkgs.lib.functionArgs
-            #                (builtins.mapAttrs (name: hasDefault:
-            #                  if name == "pkgs"
-            #                  then nixpkgs.legacyPackages.${system}
-            #                  else if name == "modulesPath"
-            #                  then "${nixpkgs}/nixos/modules"
-            #                  else if builtins.hasAttr name inputs
-            #                  then inputs.${name}
-            #                  else if hasDefault
-            #                  then null # Let the function use its default value
-            #                  else throw "Required argument '${name}' not found in inputs"))
-            #                f
-            #              ];
-          };
         in
           nixpkgs.lib.nixosSystem {
             inherit system;
@@ -142,17 +127,27 @@
                   globalUsers = importedUsers.globals;
 
                   # For WSL systems, only include the nixos user and exclude saige
-                  filteredUsers =
-                    if hostname == "nea-desktop-wsl"
-                    then builtins.removeAttrs (nixpkgs.lib.recursiveUpdate globalUsers hostUsers) ["saige"]
-                    else nixpkgs.lib.recursiveUpdate globalUsers hostUsers;
+                  #                  filteredUsers =
+                  #                    if hostname == "nea-desktop-wsl"
+                  #                    then builtins.removeAttrs (nixpkgs.lib.recursiveUpdate globalUsers hostUsers) ["saige"]
+                  #                    else nixpkgs.lib.recursiveUpdate globalUsers hostUsers;
+                  allUsers = builtins.attrNames builtins.mergeAttrs [
+                    globalUsers
+                    hostUsers
+                  ];
                 in
-                  builtins.mapAttrs (
-                    userName: userConfig:
+                  builtins.map (
+                    userName:
                     # If user exists in both, merge, else take from whichever set
                       if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
                       then
-                        (nixpkgs.lib.recursiveUpdate globalUsers.${userName} hostUsers.${userName}) {
+                        (nixpkgs.lib.recursiveUpdate (globalUsers.${userName} {
+                            pkgs = nixpkgs.legacyPackages.${system};
+                            modulesPath = "${nixpkgs}/nixos/modules";
+                            inherit inputs;
+                            inherit (nixpkgs) lib;
+                          })
+                          hostUsers.${userName}) {
                           pkgs = nixpkgs.legacyPackages.${system};
                           modulesPath = "${nixpkgs}/nixos/modules";
                           inherit inputs;
@@ -174,7 +169,7 @@
                           inherit (nixpkgs) lib;
                         }
                   )
-                  filteredUsers;
+                  allUsers;
               }
             ];
           }
