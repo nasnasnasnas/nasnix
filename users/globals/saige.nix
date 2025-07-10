@@ -8,7 +8,7 @@
   home.homeDirectory = "/home/saige";
 
   home.packages = [
-    pkgs.fastfetch
+    pkgs.htop
   ];
 
   # This value determines the home Manager release that your
