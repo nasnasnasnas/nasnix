@@ -147,12 +147,12 @@
                             inherit inputs;
                             inherit (nixpkgs) lib;
                           })
-                          hostUsers.${userName}) {
+                          (hostUsers.${userName} {
                           pkgs = nixpkgs.legacyPackages.${system};
                           modulesPath = "${nixpkgs}/nixos/modules";
                           inherit inputs;
                           inherit (nixpkgs) lib;
-                        }
+                          }))
                       else if builtins.hasAttr userName globalUsers
                       then
                         globalUsers.${userName} {
