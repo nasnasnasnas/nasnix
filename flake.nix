@@ -27,8 +27,8 @@
     ...
   }: let
     # Load lib with default system for accessing hosts configuration
-    lib = haumea.lib.load {
-      src = ./.;
+    importedHosts = haumea.lib.load {
+      src = ./hosts;
       inputs = {
         inherit inputs;
         inherit (nixpkgs) lib;
@@ -54,9 +54,15 @@
           f
         ];
     };
-  in {
-    inherit lib;
 
+    importedModules = haumea.lib.load {
+      src = ./modules;
+      inputs = {
+        inherit inputs;
+        inherit (nixpkgs) lib;
+      };
+    };
+  in {
     formatter = builtins.listToAttrs (map (system: {
       name = system;
       value = nixpkgs.legacyPackages.${system}.alejandra;
@@ -69,6 +75,28 @@
             if builtins.hasAttr "systemType" configuration
             then configuration.systemType
             else "x86_64-linux"; # Default to x86_64-linux if not specified
+
+          importedUsers = haumea.lib.load {
+            src = ./users;
+            loader = inputs: path: let
+              loaded = import path;
+              f = nixpkgs.lib.toFunction loaded;
+            in
+              nixpkgs.lib.pipe f [
+                nixpkgs.lib.functionArgs
+                (builtins.mapAttrs (name: hasDefault:
+                  if name == "pkgs"
+                  then nixpkgs.legacyPackages.${system}
+                  else if name == "modulesPath"
+                  then "${nixpkgs}/nixos/modules"
+                  else if builtins.hasAttr name inputs
+                  then inputs.${name}
+                  else if hasDefault
+                  then null # Let the function use its default value
+                  else throw "Required argument '${name}' not found in inputs"))
+                f
+              ];
+          };
         in
           nixpkgs.lib.nixosSystem {
             inherit system;
@@ -78,11 +106,12 @@
               inherit (nixpkgs) lib;
             };
             modules = [
+              # Load the hardware configuration if it exists from /etc/nixos/hardware-configuration.nix
               (
-                if builtins.hasAttr hostname lib.hardware
-                then lib.hardware.${hostname}
+                if builtins.pathExists /etc/nixos/hardware-configuration.nix
+                then /etc/nixos/hardware-configuration.nix
                 else {}
-              ) # Load hardware module if it exists
+              )
 
               {
                 # default module for all hosts TODO: maybe use a file for this
@@ -99,14 +128,16 @@
 
                 home-manager.extraSpecialArgs = {
                   inherit inputs;
+                  inherit (nixpkgs) lib;
+                  modules = importedModules.home;
                 };
 
                 home-manager.users = let
                   hostUsers =
-                    if builtins.hasAttr hostname lib.users
-                    then lib.users.${hostname}
+                    if builtins.hasAttr hostname importedUsers
+                    then importedUsers.${hostname}
                     else {};
-                  globalUsers = lib.users.globals;
+                  globalUsers = importedUsers.globals;
 
                   # For WSL systems, only include the nixos user and exclude saige
                   filteredUsers =
@@ -128,6 +159,6 @@
             ];
           }
       )
-      lib.hosts;
+      importedHosts;
   };
 }
