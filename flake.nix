@@ -2,6 +2,7 @@
   description = "NAS Nix";
 
   inputs = {
+    # todo: try unstable?
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
 
     home-manager = {
@@ -78,24 +79,25 @@
 
           importedUsers = haumea.lib.load {
             src = ./users;
-            loader = inputs: path: let
-              loaded = import path;
-              f = nixpkgs.lib.toFunction loaded;
-            in
-              nixpkgs.lib.pipe f [
-                nixpkgs.lib.functionArgs
-                (builtins.mapAttrs (name: hasDefault:
-                  if name == "pkgs"
-                  then nixpkgs.legacyPackages.${system}
-                  else if name == "modulesPath"
-                  then "${nixpkgs}/nixos/modules"
-                  else if builtins.hasAttr name inputs
-                  then inputs.${name}
-                  else if hasDefault
-                  then null # Let the function use its default value
-                  else throw "Required argument '${name}' not found in inputs"))
-                f
-              ];
+            loader = haumea.lib.loaders.verbatim;
+            #            loader = inputs: path: let
+            #              loaded = import path;
+            #              f = nixpkgs.lib.toFunction loaded;
+            #            in
+            #              nixpkgs.lib.pipe f [
+            #                nixpkgs.lib.functionArgs
+            #                (builtins.mapAttrs (name: hasDefault:
+            #                  if name == "pkgs"
+            #                  then nixpkgs.legacyPackages.${system}
+            #                  else if name == "modulesPath"
+            #                  then "${nixpkgs}/nixos/modules"
+            #                  else if builtins.hasAttr name inputs
+            #                  then inputs.${name}
+            #                  else if hasDefault
+            #                  then null # Let the function use its default value
+            #                  else throw "Required argument '${name}' not found in inputs"))
+            #                f
+            #              ];
           };
         in
           nixpkgs.lib.nixosSystem {
@@ -149,10 +151,28 @@
                     userName: userConfig:
                     # If user exists in both, merge, else take from whichever set
                       if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
-                      then nixpkgs.lib.recursiveUpdate globalUsers.${userName} hostUsers.${userName}
+                      then
+                        (nixpkgs.lib.recursiveUpdate globalUsers.${userName} hostUsers.${userName}) {
+                          pkgs = nixpkgs.legacyPackages.${system};
+                          modulesPath = "${nixpkgs}/nixos/modules";
+                          inherit inputs;
+                          inherit (nixpkgs) lib;
+                        }
                       else if builtins.hasAttr userName globalUsers
-                      then globalUsers.${userName}
-                      else hostUsers.${userName}
+                      then
+                        globalUsers.${userName} {
+                          pkgs = nixpkgs.legacyPackages.${system};
+                          modulesPath = "${nixpkgs}/nixos/modules";
+                          inherit inputs;
+                          inherit (nixpkgs) lib;
+                        }
+                      else
+                        hostUsers.${userName} {
+                          pkgs = nixpkgs.legacyPackages.${system};
+                          modulesPath = "${nixpkgs}/nixos/modules";
+                          inherit inputs;
+                          inherit (nixpkgs) lib;
+                        }
                   )
                   filteredUsers;
               }
