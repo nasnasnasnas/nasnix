@@ -131,7 +131,7 @@
                   #                    if hostname == "nea-desktop-wsl"
                   #                    then builtins.removeAttrs (nixpkgs.lib.recursiveUpdate globalUsers hostUsers) ["saige"]
                   #                    else nixpkgs.lib.recursiveUpdate globalUsers hostUsers;
-                  allUsers = builtins.attrNames lib.mergeAttrs
+                  allUsers = builtins.attrNames nixpkgs.lib.mergeAttrs
                     globalUsers
                     hostUsers;
                 in
