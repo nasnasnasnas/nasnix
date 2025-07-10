@@ -3,10 +3,10 @@
 
   inputs = {
     # todo: try unstable?
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -143,7 +143,9 @@
                           if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
                           then
                             (nixpkgs.lib.recursiveUpdate (globalUsers.${userName} {
-                                pkgs = nixpkgs.legacyPackages.${system};
+                                pkgs = import nixpkgs {
+                                  inherit system;
+                                };
                                 modulesPath = "${nixpkgs}/nixos/modules";
                                 config = {};
                                 inherit inputs;
