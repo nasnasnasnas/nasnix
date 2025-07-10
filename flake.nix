@@ -3,10 +3,10 @@
 
   inputs = {
     # todo: try unstable?
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
 
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -115,8 +115,10 @@
 
                 home-manager.extraSpecialArgs = {
                   inherit inputs;
-                  inherit (nixpkgs) lib;
                   modules = importedModules.home;
+                  pkgs = import nixpkgs {
+                    inherit system;
+                  };
                 };
 
                 home-manager.users = let
@@ -142,39 +144,12 @@
                         value =
                           if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
                           then
-                            (nixpkgs.lib.recursiveUpdate (globalUsers.${userName} {
-                                pkgs = import nixpkgs {
-                                  inherit system;
-                                };
-                                modulesPath = "${nixpkgs}/nixos/modules";
-                                config = {};
-                                inherit inputs;
-                                inherit (nixpkgs) lib;
-                              })
-                              (hostUsers.${userName} {
-                                pkgs = nixpkgs.legacyPackages.${system};
-                                modulesPath = "${nixpkgs}/nixos/modules";
-                                config = {};
-                                inherit inputs;
-                                inherit (nixpkgs) lib;
-                              }))
+                            (nixpkgs.lib.recursiveUpdate globalUsers.${userName} hostUsers.${userName})
                           else if builtins.hasAttr userName globalUsers
                           then
-                            globalUsers.${userName} {
-                              pkgs = nixpkgs.legacyPackages.${system};
-                              modulesPath = "${nixpkgs}/nixos/modules";
-                              config = {};
-                              inherit inputs;
-                              inherit (nixpkgs) lib;
-                            }
+                            globalUsers.${userName}
                           else
-                            hostUsers.${userName} {
-                              pkgs = nixpkgs.legacyPackages.${system};
-                              modulesPath = "${nixpkgs}/nixos/modules";
-                              config = {};
-                              inherit inputs;
-                              inherit (nixpkgs) lib;
-                            };
+                            hostUsers.${userName};
                       }
                     )
                     allUsers);
