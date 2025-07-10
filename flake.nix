@@ -136,44 +136,46 @@
                     (builtins.attrNames hostUsers)
                   ]);
                 in
-                  builtins.map (
-                    userName:
-                    # If user exists in both, merge, else take from whichever set
-                      if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
-                      then
-                        (nixpkgs.lib.recursiveUpdate (globalUsers.${userName} {
-                            pkgs = nixpkgs.legacyPackages.${system};
-                            modulesPath = "${nixpkgs}/nixos/modules";
-                            config = {};
-                            inherit inputs;
-                            inherit (nixpkgs) lib;
-                          })
-                          (hostUsers.${userName} {
-                            pkgs = nixpkgs.legacyPackages.${system};
-                            modulesPath = "${nixpkgs}/nixos/modules";
-                            config = {};
-                            inherit inputs;
-                            inherit (nixpkgs) lib;
-                          }))
-                      else if builtins.hasAttr userName globalUsers
-                      then
-                        globalUsers.${userName} {
-                          pkgs = nixpkgs.legacyPackages.${system};
-                          modulesPath = "${nixpkgs}/nixos/modules";
-                          config = {};
-                          inherit inputs;
-                          inherit (nixpkgs) lib;
-                        }
-                      else
-                        hostUsers.${userName} {
-                          pkgs = nixpkgs.legacyPackages.${system};
-                          modulesPath = "${nixpkgs}/nixos/modules";
-                          config = {};
-                          inherit inputs;
-                          inherit (nixpkgs) lib;
-                        }
-                  )
-                  allUsers;
+                  builtins.listToAttrs (builtins.map (
+                      userName: {
+                        name = userName;
+                        value =
+                          if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
+                          then
+                            (nixpkgs.lib.recursiveUpdate (globalUsers.${userName} {
+                                pkgs = nixpkgs.legacyPackages.${system};
+                                modulesPath = "${nixpkgs}/nixos/modules";
+                                config = {};
+                                inherit inputs;
+                                inherit (nixpkgs) lib;
+                              })
+                              (hostUsers.${userName} {
+                                pkgs = nixpkgs.legacyPackages.${system};
+                                modulesPath = "${nixpkgs}/nixos/modules";
+                                config = {};
+                                inherit inputs;
+                                inherit (nixpkgs) lib;
+                              }))
+                          else if builtins.hasAttr userName globalUsers
+                          then
+                            globalUsers.${userName} {
+                              pkgs = nixpkgs.legacyPackages.${system};
+                              modulesPath = "${nixpkgs}/nixos/modules";
+                              config = {};
+                              inherit inputs;
+                              inherit (nixpkgs) lib;
+                            }
+                          else
+                            hostUsers.${userName} {
+                              pkgs = nixpkgs.legacyPackages.${system};
+                              modulesPath = "${nixpkgs}/nixos/modules";
+                              config = {};
+                              inherit inputs;
+                              inherit (nixpkgs) lib;
+                            };
+                      }
+                    )
+                    allUsers);
               }
             ];
           }
