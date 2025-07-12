@@ -121,39 +121,36 @@
                   };
                 };
 
-#                home-manager.users = let
-#                  hostUsers =
-#                    if builtins.hasAttr hostname importedUsers
-#                    then importedUsers.${hostname}
-#                    else {};
-#                  globalUsers = importedUsers.globals;
-#
-#                  # For WSL systems, only include the nixos user and exclude saige
-#                  #                  filteredUsers =
-#                  #                    if hostname == "nea-desktop-wsl"
-#                  #                    then builtins.removeAttrs (nixpkgs.lib.recursiveUpdate globalUsers hostUsers) ["saige"]
-#                  #                    else nixpkgs.lib.recursiveUpdate globalUsers hostUsers;
-#                  allUsers = nixpkgs.lib.lists.unique (builtins.concatLists [
-#                    (builtins.attrNames globalUsers)
-#                    (builtins.attrNames hostUsers)
-#                  ]);
-#                in
-#                  builtins.listToAttrs (builtins.map (
-#                      userName: {
-#                        name = userName;
-#                        value =
-#                          if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
-#                          then
-#                            (nixpkgs.lib.recursiveUpdate globalUsers.${userName} hostUsers.${userName})
-#                          else if builtins.hasAttr userName globalUsers
-#                          then
-#                            globalUsers.${userName}
-#                          else
-#                            hostUsers.${userName};
-#                      }
-#                    )
-#                    allUsers);
-                 home-manager.users.saige = import ./users/globals/saige.nix;
+                home-manager.users = let
+                  hostUsers =
+                    if builtins.hasAttr hostname importedUsers
+                    then importedUsers.${hostname}
+                    else {};
+                  globalUsers = importedUsers.globals;
+
+                  allUsers = nixpkgs.lib.lists.unique (builtins.concatLists [
+                    (builtins.attrNames globalUsers)
+                    (builtins.attrNames hostUsers)
+                  ]);
+                in
+                  builtins.listToAttrs (builtins.map (
+                      userName: {
+                        name = userName;
+                        value =
+                          if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
+                          then
+                            (_: {
+                              imports = [
+                                globalUsers.${userName}
+                                hostUsers.${userName}
+                              ];
+                            })
+                          else if builtins.hasAttr userName globalUsers
+                          then globalUsers.${userName}
+                          else hostUsers.${userName};
+                      }
+                    )
+                    allUsers);
               }
             ];
           }
