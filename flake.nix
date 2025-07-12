@@ -95,8 +95,8 @@
             modules = [
               # Load the hardware configuration if it exists from /etc/nixos/hardware-configuration.nix
               (
-                if builtins.pathExists /etc/nixos/hardware-configuration.nix
-                then /etc/nixos/hardware-configuration.nix
+                if builtins.pathExists ./hardware-configuration.nix
+                then ./hardware-configuration.nix
                 else {}
               )
 
@@ -139,12 +139,12 @@
                         value =
                           if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
                           then
-                            (_: {
-                              imports = [
-                                globalUsers.${userName}
-                                hostUsers.${userName}
-                              ];
-                            })
+                            (
+                              args:
+                                nixpkgs.lib.recursiveUpdate
+                                (globalUsers.${userName} args)
+                                (hostUsers.${userName} args)
+                            )
                           else if builtins.hasAttr userName globalUsers
                           then globalUsers.${userName}
                           else hostUsers.${userName};
