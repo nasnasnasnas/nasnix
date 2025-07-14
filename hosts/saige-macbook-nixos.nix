@@ -45,14 +45,14 @@
     };
 
     # Enable the X11 windowing system.
-    services.xserver.enable = true;
+    # services.xserver.enable = true;
 
     # enable the spice guest agent
     services.spice-vdagentd.enable = true;
 
     # Enable the GNOME Desktop Environment.
-    services.xserver.displayManager.gdm.enable = true;
-    services.xserver.desktopManager.gnome.enable = true;
+    # services.xserver.displayManager.gdm.enable = true;
+    # services.xserver.desktopManager.gnome.enable = true;
 
     # Configure keymap in X11
     services.xserver.xkb = {
@@ -105,7 +105,22 @@
       git
       gh
       vscode-fhs
+      kitty
+      rofi-wayland
     ];
+
+    # hyprland
+
+    programs.hyprland = {
+      enable = true;
+      withUWSM = true;
+    };
+    # Optional, hint electron apps to use wayland:
+    environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+    programs.waybar.enable = true;
+    programs.hyprlock.enable = true;
+    services.hypridle.enable = true;
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
