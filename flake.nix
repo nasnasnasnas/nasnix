@@ -177,9 +177,10 @@
                           base =
                             if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
                             then
-                              nixpkgs.lib.recursiveUpdate
-                              (globalUsers.${userName} args)
-                              (hostUsers.${userName} args)
+                              nixpkgs.lib.mkMerge [
+                                (globalUsers.${userName} args)
+                                (hostUsers.${userName} args)
+                              ]
                             else if builtins.hasAttr userName globalUsers
                             then globalUsers.${userName} args
                             else hostUsers.${userName} args;
