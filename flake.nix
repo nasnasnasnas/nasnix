@@ -100,7 +100,6 @@
   in {
     # Allows nix eval for debugging
     inherit importedHosts importedModules importedUsers;
-    
 
     formatter = builtins.listToAttrs (map (system: {
       name = system;
