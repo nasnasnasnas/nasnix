@@ -3,7 +3,6 @@
   pkgs,
   ...
 }: {
-  # TODO please change the username & home directory to your own
   home.username = "saige";
   home.homeDirectory = "/home/saige";
 

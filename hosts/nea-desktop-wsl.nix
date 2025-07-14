@@ -8,6 +8,8 @@
   }: {
     inherit (self) systemType;
 
+    usersToExclude = ["saige"]; # Exclude these users from users/globals
+
     imports = [
       inputs.nixos-wsl.nixosModules.default
     ];

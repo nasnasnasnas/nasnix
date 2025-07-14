@@ -62,6 +62,7 @@
         inherit inputs;
         inherit (nixpkgs) lib;
       };
+      loader = haumea.lib.loaders.verbatim;
     };
 
     importedUsers = haumea.lib.load {
@@ -84,6 +85,7 @@
             if builtins.hasAttr "systemType" configuration
             then configuration.systemType
             else "x86_64-linux"; # Default to x86_64-linux if not specified
+          inherit (configuration) usersToExclude;
         in
           nixpkgs.lib.nixosSystem {
             inherit system;
@@ -91,6 +93,7 @@
             specialArgs = {
               inherit inputs;
               inherit (nixpkgs) lib;
+              modules = importedModules.nixos;
             };
             modules = [
               # Load the hardware configuration if it exists from /etc/nixos/hardware-configuration.nix
@@ -106,7 +109,7 @@
                 nix.settings.experimental-features = ["nix-command" "flakes"];
               }
 
-              (builtins.removeAttrs configuration ["systemType"]) # Pass configuration but remove our custom attribute
+              (builtins.removeAttrs configuration ["systemType" "usersToExclude"]) # Remove our own custom attributes
 
               home-manager.nixosModules.home-manager
               {
@@ -128,10 +131,10 @@
                     else {};
                   globalUsers = importedUsers.globals;
 
-                  allUsers = nixpkgs.lib.lists.unique (builtins.concatLists [
+                  allUsers = builtins.filter (userName: !builtins.elem userName usersToExclude) (nixpkgs.lib.lists.unique (builtins.concatLists [
                     (builtins.attrNames globalUsers)
                     (builtins.attrNames hostUsers)
-                  ]);
+                  ]));
                 in
                   builtins.listToAttrs (builtins.map (
                       userName: {
@@ -142,12 +145,31 @@
                             (
                               args:
                                 nixpkgs.lib.recursiveUpdate
-                                (globalUsers.${userName} args)
-                                (hostUsers.${userName} args)
+                                (nixpkgs.lib.recursiveUpdate
+                                  (globalUsers.${userName} args)
+                                  (hostUsers.${userName} args)) {
+                                  imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
+                                }
                             )
                           else if builtins.hasAttr userName globalUsers
-                          then globalUsers.${userName}
-                          else hostUsers.${userName};
+                          then
+                            (
+                              args:
+                                nixpkgs.lib.recursiveUpdate
+                                (globalUsers.${userName} args)
+                                {
+                                  imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
+                                }
+                            )
+                          else
+                            (
+                              args:
+                                nixpkgs.lib.recursiveUpdate
+                                (hostUsers.${userName} args)
+                                {
+                                  imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
+                                }
+                            );
                       }
                     )
                     allUsers);
