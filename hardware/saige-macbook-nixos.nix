@@ -9,11 +9,11 @@
   ...
 }: {
   # TODO: figure out how this works?
-#  imports = [
-#    (modulesPath + "/profiles/qemu-guest.nix")
-#  ];
+  # imports = [
+  #   (modulesPath + "/profiles/qemu-guest.nix")
+  # ];
 
-  services.qemuGuest.enable = true;
+  services.qemuGuest.enable = true; # guest agent
 
   boot.initrd.availableKernelModules = ["xhci_pci" "virtio_pci" "usbhid" "usb_storage" "sr_mod"];
   boot.initrd.kernelModules = [];
