@@ -27,7 +27,23 @@
     haumea,
     ...
   }: let
-    # Load lib with default system for accessing hosts configuration
+    importedModules = haumea.lib.load {
+      src = ./modules;
+      inputs = {
+        inherit inputs;
+        inherit (nixpkgs) lib;
+      };
+      loader = haumea.lib.loaders.verbatim;
+    };
+
+    importedHardware = haumea.lib.load {
+      src = ./hardware;
+      inputs = {
+        inherit inputs;
+        inherit (nixpkgs) lib;
+      };
+    };
+
     importedHosts = haumea.lib.load {
       src = ./hosts;
       inputs = {
@@ -39,30 +55,42 @@
       loader = inputs: path: let
         loaded = import path;
         f = nixpkgs.lib.toFunction loaded;
-      in
-        nixpkgs.lib.pipe f [
+        args = nixpkgs.lib.pipe f [
           nixpkgs.lib.functionArgs
           (builtins.mapAttrs (name: hasDefault:
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then nixpkgs.legacyPackages.${loaded.systemType}
             else if name == "modulesPath"
             then "${nixpkgs}/nixos/modules"
+            else if name == "system"
+            then
+              if builtins.hasAttr "systemType" loaded
+              then loaded.systemType
+              else "x86_64-linux" # Default to x86_64-linux if not specified
+            else if name == "lib"
+            then nixpkgs.lib
             else if builtins.hasAttr name inputs
             then inputs.${name}
             else if hasDefault
             then null # Let the function use its default value
             else throw "Required argument '${name}' not found in inputs"))
-          f
         ];
-    };
-
-    importedModules = haumea.lib.load {
-      src = ./modules;
-      inputs = {
-        inherit inputs;
-        inherit (nixpkgs) lib;
-      };
-      loader = haumea.lib.loaders.verbatim;
+        configurationValue = f args;
+      in (
+        nixpkgs.lib.recursiveUpdate
+        configurationValue
+        {
+          imports = builtins.concatLists [
+            # this operator returns whether "imports" is a key within configurationValue
+            (
+              if (configurationValue ? imports)
+              then configurationValue.imports
+              else []
+            )
+            (builtins.attrValues importedModules.nixos)
+          ];
+        }
+      );
     };
 
     importedUsers = haumea.lib.load {
@@ -72,6 +100,7 @@
   in {
     # Allows nix eval for debugging
     inherit importedHosts importedModules importedUsers;
+    
 
     formatter = builtins.listToAttrs (map (system: {
       name = system;
@@ -85,7 +114,10 @@
             if builtins.hasAttr "systemType" configuration
             then configuration.systemType
             else "x86_64-linux"; # Default to x86_64-linux if not specified
-          inherit (configuration) usersToExclude;
+          usersToExclude =
+            if builtins.hasAttr "usersToExclude" configuration
+            then configuration.usersToExclude
+            else []; # Default to empty list if not specified
         in
           nixpkgs.lib.nixosSystem {
             inherit system;
@@ -93,23 +125,25 @@
             specialArgs = {
               inherit inputs;
               inherit (nixpkgs) lib;
+              inherit hostname;
+              inherit system;
               modules = importedModules.nixos;
             };
             modules = [
-              # Load the hardware configuration if it exists from /etc/nixos/hardware-configuration.nix
+              # Load the hardware configuration if it exists from the hardware directory
               (
-                if builtins.pathExists ./hardware-configuration.nix
-                then ./hardware-configuration.nix
+                if builtins.hasAttr hostname importedHardware
+                then importedHardware.${hostname}
                 else {}
               )
 
-              {
-                # default module for all hosts TODO: maybe use a file for this
-                networking.hostName = hostname;
-                nix.settings.experimental-features = ["nix-command" "flakes"];
-              }
+              (
+                if builtins.pathExists ./default-host-config.nix
+                then ./default-host-config.nix
+                else {}
+              )
 
-              (builtins.removeAttrs configuration ["systemType" "usersToExclude"]) # Remove our own custom attributes
+              (builtins.removeAttrs configuration ["systemType" "usersToExclude"]) # Remove our own custom attributes but pass configuration
 
               home-manager.nixosModules.home-manager
               {
@@ -144,9 +178,8 @@
                             if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
                             then
                               nixpkgs.lib.recursiveUpdate
-                              (nixpkgs.lib.recursiveUpdate
-                                (globalUsers.${userName} args)
-                                (hostUsers.${userName} args))
+                              (globalUsers.${userName} args)
+                              (hostUsers.${userName} args)
                             else if builtins.hasAttr userName globalUsers
                             then globalUsers.${userName} args
                             else hostUsers.${userName} args;
