@@ -6,6 +6,8 @@
   home.username = "saige";
   home.homeDirectory = "/home/saige";
 
+  modules.starship.enable = true;
+
   home.packages = [
     pkgs.htop
   ];
