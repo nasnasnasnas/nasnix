@@ -22,6 +22,7 @@
   };
 
   outputs = inputs @ {
+    self,
     nixpkgs,
     home-manager,
     haumea,
@@ -100,6 +101,8 @@
   in {
     # Allows nix eval for debugging
     inherit importedHosts importedModules importedUsers;
+
+    revision = if (self ? shortRev) then self.shortRev else self.dirtyShortRev;
 
     formatter = builtins.listToAttrs (map (system: {
       name = system;
