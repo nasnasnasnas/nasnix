@@ -139,37 +139,21 @@
                   builtins.listToAttrs (builtins.map (
                       userName: {
                         name = userName;
-                        value =
-                          if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
-                          then
-                            (
-                              args:
-                                nixpkgs.lib.recursiveUpdate
-                                (nixpkgs.lib.recursiveUpdate
-                                  (globalUsers.${userName} args)
-                                  (hostUsers.${userName} args)) {
-                                  imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
-                                }
-                            )
-                          else if builtins.hasAttr userName globalUsers
-                          then
-                            (
-                              args:
-                                nixpkgs.lib.recursiveUpdate
+                        value = args: let
+                          base =
+                            if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
+                            then
+                              nixpkgs.lib.recursiveUpdate
+                              (nixpkgs.lib.recursiveUpdate
                                 (globalUsers.${userName} args)
-                                {
-                                  imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
-                                }
-                            )
-                          else
-                            (
-                              args:
-                                nixpkgs.lib.recursiveUpdate
-                                (hostUsers.${userName} args)
-                                {
-                                  imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
-                                }
-                            );
+                                (hostUsers.${userName} args))
+                            else if builtins.hasAttr userName globalUsers
+                            then globalUsers.${userName} args
+                            else hostUsers.${userName} args;
+                        in
+                          nixpkgs.lib.recursiveUpdate base {
+                            imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
+                          };
                       }
                     )
                     allUsers);
