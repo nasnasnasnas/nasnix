@@ -60,7 +60,7 @@
           nixpkgs.lib.functionArgs
           (builtins.mapAttrs (name: hasDefault:
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
-            then nixpkgs.legacyPackages.${loaded.systemType}
+            then import nixpkgs { system = loaded.systemType; config.allowUnfree = true; }
             else if name == "modulesPath"
             then "${nixpkgs}/nixos/modules"
             else if name == "system"
