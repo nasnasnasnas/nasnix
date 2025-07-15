@@ -109,6 +109,7 @@
       rofi-wayland
       ghostty
       alacritty
+      foot
     ];
 
     # hyprland
