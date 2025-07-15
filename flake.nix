@@ -60,7 +60,11 @@
           nixpkgs.lib.functionArgs
           (builtins.mapAttrs (name: hasDefault:
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
-            then import nixpkgs { system = loaded.systemType; config.allowUnfree = true; }
+            then
+              import nixpkgs {
+                system = loaded.systemType;
+                config.allowUnfree = true;
+              }
             else if name == "modulesPath"
             then "${nixpkgs}/nixos/modules"
             else if name == "system"
@@ -102,7 +106,10 @@
     # Allows nix eval for debugging
     inherit importedHosts importedModules importedUsers;
 
-    revision = if (self ? shortRev) then self.shortRev else self.dirtyShortRev;
+    revision =
+      if (self ? shortRev)
+      then self.shortRev
+      else self.dirtyShortRev;
 
     formatter = builtins.listToAttrs (map (system: {
       name = system;
