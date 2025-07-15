@@ -107,6 +107,7 @@
       vscode-fhs
       kitty
       rofi-wayland
+      ghostty
     ];
 
     # hyprland
