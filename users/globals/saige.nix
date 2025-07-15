@@ -24,7 +24,7 @@
     bind =
       [
         "$mod, F, exec, firefox"
-        "$mod, T, exec, ghostty"
+        "$mod, T, exec, alacritty"
       ]
       ++ (
         # workspaces

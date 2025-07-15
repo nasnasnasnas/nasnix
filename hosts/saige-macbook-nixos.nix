@@ -108,6 +108,7 @@
       kitty
       rofi-wayland
       ghostty
+      alacritty
     ];
 
     # hyprland
