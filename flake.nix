@@ -19,6 +19,8 @@
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
+
+    hyprland.url = "github:hyprwm/Hyprland";
   };
 
   outputs = inputs @ {
