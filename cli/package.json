@@ -1,0 +1,46 @@
+{
+  "name": "@nasnasnasnas/nasnix-cli",
+  "version": "0.1.0",
+  "module": "src/application.tsx",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrmmendes/ink-cli-app.git"
+  },
+  "keywords": [
+    "cli"
+  ],
+  "bin": {
+    "nn": "./bin.js"
+  },
+  "files": [
+    "dist",
+    "bin.js"
+  ],
+  "scripts": {
+    "clear": "rimraf dist",
+    "test": "FORCE_COLOR=0 NODE_ENV=test bun test",
+    "build": "bun run clear && bun build src/application.tsx --outfile=./dist/bundle.js --target=node --format=esm --minify",
+    "start": "node ./bin.js",
+    "dev": "bun ./src/application.tsx",
+    "prepublishOnly": "bun run build"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.18",
+    "@types/ink-testing-library": "^1.0.4",
+    "@types/react": "^19.1.8",
+    "ink-testing-library": "^4.0.0",
+    "react-devtools-core": "^6.1.5",
+    "rimraf": "^6.0.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@inkjs/ui": "^2.0.0",
+    "arktype": "^2.1.20",
+    "ink": "^6.0.1",
+    "mri": "^1.2.0",
+    "react": "^19.1.0"
+  }
+}
