@@ -5,6 +5,8 @@
     # todo: try unstable?
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
 
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -19,21 +21,23 @@
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
+
+    arion = {
+      url = "github:hercules-ci/arion";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
     self,
     nixpkgs,
+    nixpkgs-unstable,
     home-manager,
     haumea,
     ...
   }: let
     importedModules = haumea.lib.load {
       src = ./modules;
-      inputs = {
-        inherit inputs;
-        inherit (nixpkgs) lib;
-      };
       loader = haumea.lib.loaders.verbatim;
     };
 
@@ -62,6 +66,12 @@
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then
               import nixpkgs {
+                system = loaded.systemType;
+                config.allowUnfree = true;
+              }
+            else if name == "pkgs-unstable" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
+            then
+              import nixpkgs-unstable {
                 system = loaded.systemType;
                 config.allowUnfree = true;
               }
