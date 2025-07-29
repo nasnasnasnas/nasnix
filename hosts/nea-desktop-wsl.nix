@@ -25,7 +25,19 @@
       curl
       btop
       fastfetch
+      nixd
     ];
+
+    fileSystems."/mnt/share" = {
+      device = "//10.177.177.112/magicbox";
+      fsType = "cifs";
+      options = let
+        # this line prevents hanging on network split
+        automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
+        # CIFS options for proper permissions
+        cifs_opts = "uid=1000,gid=100,file_mode=0664,dir_mode=0775";
+      in ["${automount_opts},${cifs_opts},credentials=/etc/nixos/smb-secrets"];
+    };
 
     programs.nix-ld = {
       enable = true;
@@ -33,6 +45,34 @@
     };
 
     modules.fd.enable = true; # Enable fd file search
+
+    system.activationScripts.directoryConfig.text = ''
+      # Create local directories
+      mkdir -p /config
+      mkdir -p /data
+      mkdir -p /data/caddy
+      mkdir -p /config/prowlarr
+      mkdir -p /config/sonarr
+      mkdir -p /config/radarr
+      mkdir -p /config/lidarr
+      mkdir -p /config/sabnzbd
+      mkdir -p /config/caddy
+      
+      # Create media directory in the CIFS share (ensure mount is available)
+      mkdir -p /mnt/share/media
+      mkdir -p /mnt/share/media/usenet
+      
+      # Set ownership for local directories
+      chown -R 1000:100 /config
+      chown -R 1000:100 /data
+      chmod -R 755 /config
+      chmod -R 755 /data
+      
+      # Set ownership and permissions for the shared media directory
+      # Note: CIFS permissions depend on mount options and server configuration
+      chown -R 1000:100 /mnt/share/media || true
+      chmod -R 755 /mnt/share/media || true
+      '';
 
     users.extraUsers.nixos.extraGroups = ["docker"];
 
@@ -58,13 +98,13 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/config/caddy:/etc/caddy"
+                "/home/nixos/magicbox/config/caddy:/etc/caddy"
                 "/data/caddy:/data"
               ];
             };
             prowlarr = {
               service.container_name = "prowlarr";
-              service.image = "lcsr.io/linuxserver/prowlarr:latest";
+              service.image = "linuxserver/prowlarr:latest";
               service.restart = "unless-stopped";
               service.environment = {
                 PUID = "1000";
@@ -78,12 +118,12 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/config/prowlarr:/config"
+                "/home/nixos/magicbox/config/prowlarr:/config"
               ];
             };
             sonarr = {
               service.container_name = "sonarr";
-              service.image = "lcsr.io/linuxserver/sonarr:latest";
+              service.image = "linuxserver/sonarr:latest";
               service.restart = "unless-stopped";
               service.environment = {
                 PUID = "1000";
@@ -97,13 +137,13 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/config/sonarr:/config"
-                "/data/media:/data"
+                "/home/nixos/magicbox/config/sonarr:/config"
+                "/mnt/share/media:/data"
               ];
             };
             radarr = {
               service.container_name = "radarr";
-              service.image = "lcsr.io/linuxserver/radarr:latest";
+              service.image = "linuxserver/radarr:latest";
               service.restart = "unless-stopped";
               service.environment = {
                 PUID = "1000";
@@ -117,13 +157,33 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/config/radarr:/config"
-                "/data/media:/data"
+                "/home/nixos/magicbox/config/radarr:/config"
+                "/mnt/share/media:/data"
+              ];
+            };
+            lidarr = {
+              service.container_name = "lidarr";
+              service.image = "linuxserver/lidarr:latest";
+              service.restart = "unless-stopped";
+              service.environment = {
+                PUID = "1000";
+                PGID = "100";
+                TZ = "America/Indiana/Indianapolis";
+              };
+              service.ports = [
+                "8686:8686"
+              ];
+              service.networks = [
+                "magicbox-network"
+              ];
+              service.volumes = [
+                "/home/nixos/magicbox/config/lidarr:/config"
+                "/mnt/share/media:/data"
               ];
             };
             sabnzbd = {
               service.container_name = "sabnzbd";
-              service.image = "lcsr.io/linuxserver/sabnzbd:latest";
+              service.image = "linuxserver/sabnzbd:latest";
               service.restart = "unless-stopped";
               service.environment = {
                 PUID = "1000";
@@ -137,8 +197,8 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/config/sabnzbd:/config"
-                "/data/media/usenet:/data/usenet:rw"
+                "/home/nixos/magicbox/config/sabnzbd:/config"
+                "/mnt/share/media/usenet:/data/usenet:rw"
               ];
             };
           };

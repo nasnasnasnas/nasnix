@@ -1,12 +1,16 @@
 {
   config,
   pkgs,
+  inputs,
   ...
 }: {
   home.username = "nixos";
   home.homeDirectory = "/home/nixos";
 
   modules.starship.enable = true;
+
+  home.file."magicbox/config/caddy".source = "${inputs.self}/common/magicbox-caddy";
+  home.file."magicbox/config/caddy".recursive = true;
 
   # This value determines the home Manager release that your
   # configuration is compatible with. This helps avoid breakage
