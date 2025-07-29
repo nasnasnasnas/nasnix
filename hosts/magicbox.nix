@@ -34,6 +34,7 @@
         cifs_opts = "uid=1000,gid=100,file_mode=0664,dir_mode=0775";
       in ["${automount_opts},${cifs_opts},credentials=/etc/nixos/smb-secrets"];
     };
+    nix.settings.trusted-users = [ "nixos" "nea" "magicbox" ];
 
     programs.nix-ld = {
       enable = true;
