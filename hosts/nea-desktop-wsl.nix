@@ -57,29 +57,29 @@
       mkdir -p /config/lidarr
       mkdir -p /config/sabnzbd
       mkdir -p /config/caddy
-      
+
       # Create media directory in the CIFS share (ensure mount is available)
       mkdir -p /mnt/share/media
       mkdir -p /mnt/share/media/usenet
-      
+
       # Set ownership for local directories
       chown -R 1000:100 /config
       chown -R 1000:100 /data
       chmod -R 755 /config
       chmod -R 755 /data
-      
+
       # Set ownership and permissions for the shared media directory
       # Note: CIFS permissions depend on mount options and server configuration
       chown -R 1000:100 /mnt/share/media || true
       chmod -R 755 /mnt/share/media || true
-      '';
+    '';
 
     users.extraUsers.nixos.extraGroups = ["docker"];
 
     virtualisation.arion = {
       backend = "docker";
       projects.magicbox = {
-        serviceName =  "magicbox";
+        serviceName = "magicbox";
         settings = {
           project.name = "magicbox";
           networks.magicbox-network = {

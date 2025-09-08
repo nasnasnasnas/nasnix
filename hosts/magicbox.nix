@@ -34,7 +34,7 @@
         cifs_opts = "uid=1000,gid=100,file_mode=0664,dir_mode=0775";
       in ["${automount_opts},${cifs_opts},credentials=/etc/nixos/smb-secrets"];
     };
-    nix.settings.trusted-users = [ "nixos" "nea" "magicbox" ];
+    nix.settings.trusted-users = ["nixos" "nea" "magicbox"];
 
     programs.nix-ld = {
       enable = true;
@@ -55,11 +55,11 @@
       mkdir -p /home/magicbox/config/sabnzbd
       mkdir -p /home/magicbox/config/caddy
       mkdir -p /home/magicbox/config/jellyfin
-      
+
       # Create media directory in the CIFS share (ensure mount is available)
       mkdir -p /mnt/share/media
       mkdir -p /mnt/share/media/usenet
-      
+
       # Set ownership for local directories
       chown -R 1000:100 /home/magicbox/config
       chown -R 1000:100 /home/magicbox/data
@@ -70,7 +70,7 @@
       # Note: CIFS permissions depend on mount options and server configuration
       chown -R 1000:100 /mnt/share/media || true
       chmod -R 755 /mnt/share/media || true
-      '';
+    '';
 
     users.users.magicbox = {
       isNormalUser = true;
@@ -86,7 +86,7 @@
     virtualisation.arion = {
       backend = "docker";
       projects.magicbox = {
-        serviceName =  "magicbox";
+        serviceName = "magicbox";
         settings = {
           project.name = "magicbox";
           networks.magicbox-network = {
