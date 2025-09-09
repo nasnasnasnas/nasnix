@@ -116,6 +116,7 @@
               else []
             )
             (builtins.attrValues importedModules.nixos)
+            (builtins.attrValues importedModules.macos)
           ];
         }
       );
@@ -248,6 +249,8 @@
           if builtins.match ".+-darwin" system != null
           then
             nix-darwin.lib.darwinSystem {
+              inherit system;
+
               specialArgs = {
                 inherit inputs;
                 inherit (nixpkgs) lib;
