@@ -10,6 +10,8 @@
 
     system.configurationRevision = self.rev or self.dirtyRev or null;
 
+#    usersToExclude = [ "saige" ];
+
     system.primaryUser = "leah";
 
     nix-homebrew = {
@@ -47,6 +49,18 @@
       _1password-cli
       _1password-gui
     ];
+
+    users.users.leah = {
+      name = "leah";
+      home = "/Users/leah";
+      shell = pkgs.zsh;
+    };
+    users.users.saige = {
+      name = "saige";
+      home = "/Users/saige";
+    };
+
+    programs.zsh.enable = true;
 
     # Used for backwards compatibility, please read the changelog before changing.
     # $ darwin-rebuild changelog
