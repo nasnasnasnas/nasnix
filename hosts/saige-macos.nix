@@ -36,12 +36,16 @@
     homebrew.enable = true;
 #    homebrew.taps = builtins.attrNames self.nix-homebrew.taps;
     homebrew.casks = [
-      { name = "ghostty"; }
+      "ghostty"
     ];
 
     environment.systemPackages = with pkgs; [
       kitty
       wget
+      jetbrains-toolbox
+      vesktop
+      _1password-cli
+      _1password-gui
     ];
 
     # Used for backwards compatibility, please read the changelog before changing.

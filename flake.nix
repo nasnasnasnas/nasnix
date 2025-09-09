@@ -267,6 +267,55 @@
                 )
 
                 (builtins.removeAttrs configuration ["systemType" "usersToExclude"])
+
+                home-manager.darwinModules.home-manager
+                {
+                  home-manager.useGlobalPkgs = true;
+                  home-manager.useUserPackages = true;
+                  home-manager.backupFileExtension = "backup";
+
+                  home-manager.extraSpecialArgs = {
+                    inherit inputs;
+                    modules = importedModules.home;
+                    pkgs = import nixpkgs {
+                      inherit system;
+                    };
+                  };
+
+                  home-manager.users = let
+                    hostUsers =
+                      if builtins.hasAttr hostname importedUsers
+                      then importedUsers.${hostname}
+                      else {};
+                    globalUsers = importedUsers.globals;
+
+                    allUsers = builtins.filter (userName: !builtins.elem userName usersToExclude) (nixpkgs.lib.lists.unique (builtins.concatLists [
+                      (builtins.attrNames globalUsers)
+                      (builtins.attrNames hostUsers)
+                    ]));
+                  in
+                    builtins.listToAttrs (builtins.map (
+                        userName: {
+                          name = userName;
+                          value = args: let
+                            base =
+                              if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
+                              then
+                                nixpkgs.lib.mkMerge [
+                                  (globalUsers.${userName} args)
+                                  (hostUsers.${userName} args)
+                                ]
+                              else if builtins.hasAttr userName globalUsers
+                              then globalUsers.${userName} args
+                              else hostUsers.${userName} args;
+                          in
+                            nixpkgs.lib.recursiveUpdate base {
+                              imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
+                            };
+                        }
+                      )
+                      allUsers);
+                }
               ];
             }
           else null
