@@ -1,0 +1,23 @@
+http://prowlarr.local.nea.rip {
+    reverse_proxy prowlarr:9696
+}
+
+http://radarr.local.nea.rip {
+    reverse_proxy radarr:7878
+}
+
+http://sonarr.local.nea.rip {
+    reverse_proxy sonarr:8989
+}
+
+http://lidarr.local.nea.rip {
+    reverse_proxy lidarr:8686
+}
+
+http://sabnzbd.local.nea.rip {
+    reverse_proxy sabnzbd:8080
+}
+
+http://localhost {
+    reverse_proxy sabnzbd:8080
+}

@@ -8,15 +8,11 @@
   }: {
     inherit (self) systemType;
 
-    usersToExclude = ["saige"]; # Exclude these users from users/globals
+    usersToExclude = ["saige" "nixos"]; # Exclude these users from users/globals
 
     imports = [
-      inputs.nixos-wsl.nixosModules.default
       inputs.arion.nixosModules.arion
     ];
-
-    wsl.enable = true;
-    wsl.defaultUser = "nixos";
 
     environment.systemPackages = with pkgs; [
       # Add your system packages here
@@ -38,6 +34,7 @@
         cifs_opts = "uid=1000,gid=100,file_mode=0664,dir_mode=0775";
       in ["${automount_opts},${cifs_opts},credentials=/etc/nixos/smb-secrets"];
     };
+    nix.settings.trusted-users = ["nixos" "nea" "magicbox"];
 
     programs.nix-ld = {
       enable = true;
@@ -48,25 +45,26 @@
 
     system.activationScripts.directoryConfig.text = ''
       # Create local directories
-      mkdir -p /config
-      mkdir -p /data
-      mkdir -p /data/caddy
-      mkdir -p /config/prowlarr
-      mkdir -p /config/sonarr
-      mkdir -p /config/radarr
-      mkdir -p /config/lidarr
-      mkdir -p /config/sabnzbd
-      mkdir -p /config/caddy
+      mkdir -p /home/magicbox/config
+      mkdir -p /home/magicbox/data
+      mkdir -p /home/magicbox/data/caddy
+      mkdir -p /home/magicbox/config/prowlarr
+      mkdir -p /home/magicbox/config/sonarr
+      mkdir -p /home/magicbox/config/radarr
+      mkdir -p /home/magicbox/config/lidarr
+      mkdir -p /home/magicbox/config/sabnzbd
+      mkdir -p /home/magicbox/config/caddy
+      mkdir -p /home/magicbox/config/jellyfin
 
       # Create media directory in the CIFS share (ensure mount is available)
       mkdir -p /mnt/share/media
       mkdir -p /mnt/share/media/usenet
 
       # Set ownership for local directories
-      chown -R 1000:100 /config
-      chown -R 1000:100 /data
-      chmod -R 755 /config
-      chmod -R 755 /data
+      chown -R 1000:100 /home/magicbox/config
+      chown -R 1000:100 /home/magicbox/data
+      chmod -R 755 /home/magicbox/config
+      chmod -R 755 /home/magicbox/data
 
       # Set ownership and permissions for the shared media directory
       # Note: CIFS permissions depend on mount options and server configuration
@@ -74,7 +72,16 @@
       chmod -R 755 /mnt/share/media || true
     '';
 
-    users.extraUsers.nixos.extraGroups = ["docker"];
+    users.users.magicbox = {
+      isNormalUser = true;
+      description = "magicbox";
+      extraGroups = ["networkmanager" "wheel" "docker"];
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICxMQi0MHfKIz2Fl9zvViseJButXB13nSRQ0qNripZij magicbox@10.177.177.39"
+      ];
+    };
+
+    services.openssh.enable = true;
 
     virtualisation.arion = {
       backend = "docker";
@@ -98,8 +105,8 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/home/nixos/magicbox/config/caddy:/etc/caddy"
-                "/data/caddy:/data"
+                "/home/magicbox/config/caddy/Caddyfile:/etc/caddy/Caddyfile"
+                "/home/magicbox/data/caddy:/data"
               ];
             };
             prowlarr = {
@@ -118,7 +125,7 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/home/nixos/magicbox/config/prowlarr:/config"
+                "/home/magicbox/config/prowlarr:/config"
               ];
             };
             sonarr = {
@@ -137,7 +144,7 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/home/nixos/magicbox/config/sonarr:/config"
+                "/home/magicbox/config/sonarr:/config"
                 "/mnt/share/media:/data"
               ];
             };
@@ -157,7 +164,7 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/home/nixos/magicbox/config/radarr:/config"
+                "/home/magicbox/config/radarr:/config"
                 "/mnt/share/media:/data"
               ];
             };
@@ -177,7 +184,7 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/home/nixos/magicbox/config/lidarr:/config"
+                "/home/magicbox/config/lidarr:/config"
                 "/mnt/share/media:/data"
               ];
             };
@@ -197,7 +204,7 @@
                 "magicbox-network"
               ];
               service.volumes = [
-                "/home/nixos/magicbox/config/sabnzbd:/config"
+                "/home/magicbox/config/sabnzbd:/config"
                 "/mnt/share/media/usenet:/data/usenet:rw"
               ];
             };

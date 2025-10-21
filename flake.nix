@@ -5,6 +5,8 @@
     # todo: try unstable?
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
 
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -15,25 +17,40 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-darwin.url = "github:LnL7/nix-darwin";
+    nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
+    nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    # Optional: Declarative tap management
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
+
+    arion = {
+      url = "github:hercules-ci/arion";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
     self,
     nixpkgs,
+    nixpkgs-unstable,
+    nix-darwin,
     home-manager,
     haumea,
     ...
   }: let
     importedModules = haumea.lib.load {
       src = ./modules;
-      inputs = {
-        inherit inputs;
-        inherit (nixpkgs) lib;
-      };
       loader = haumea.lib.loaders.verbatim;
     };
 
@@ -65,6 +82,12 @@
                 system = loaded.systemType;
                 config.allowUnfree = true;
               }
+            else if name == "pkgs-unstable" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
+            then
+              import nixpkgs-unstable {
+                system = loaded.systemType;
+                config.allowUnfree = true;
+              }
             else if name == "modulesPath"
             then "${nixpkgs}/nixos/modules"
             else if name == "system"
@@ -93,6 +116,7 @@
               else []
             )
             (builtins.attrValues importedModules.nixos)
+            (builtins.attrValues importedModules.macos)
           ];
         }
       );
@@ -128,82 +152,172 @@
             then configuration.usersToExclude
             else []; # Default to empty list if not specified
         in
-          nixpkgs.lib.nixosSystem {
-            inherit system;
-
-            specialArgs = {
-              inherit inputs;
-              inherit (nixpkgs) lib;
-              inherit hostname;
+          if builtins.match ".+-linux" system != null
+          then
+            nixpkgs.lib.nixosSystem {
               inherit system;
-              modules = importedModules.nixos;
-            };
-            modules = [
-              # Load the hardware configuration if it exists from the hardware directory
-              (
-                if builtins.hasAttr hostname importedHardware
-                then importedHardware.${hostname}
-                else {}
-              )
 
-              (
-                if builtins.pathExists ./default-host-config.nix
-                then ./default-host-config.nix
-                else {}
-              )
+              specialArgs = {
+                inherit inputs;
+                inherit (nixpkgs) lib;
+                inherit hostname;
+                inherit system;
+                modules = importedModules.nixos;
+              };
+              modules = [
+                # Load the hardware configuration if it exists from the hardware directory
+                (
+                  if builtins.hasAttr hostname importedHardware
+                  then importedHardware.${hostname}
+                  else {}
+                )
 
-              (builtins.removeAttrs configuration ["systemType" "usersToExclude"]) # Remove our own custom attributes but pass configuration
+                (
+                  if builtins.pathExists ./default-host-config.nix
+                  then ./default-host-config.nix
+                  else {}
+                )
 
-              home-manager.nixosModules.home-manager
-              {
-                home-manager.useGlobalPkgs = true;
-                home-manager.useUserPackages = true;
-                home-manager.backupFileExtension = "backup";
+                (builtins.removeAttrs configuration ["systemType" "usersToExclude"]) # Remove our own custom attributes but pass configuration
 
-                home-manager.extraSpecialArgs = {
-                  inherit inputs;
-                  modules = importedModules.home;
-                  pkgs = import nixpkgs {
-                    inherit system;
+                home-manager.nixosModules.home-manager
+                {
+                  home-manager.useGlobalPkgs = true;
+                  home-manager.useUserPackages = true;
+                  home-manager.backupFileExtension = "backup";
+
+                  home-manager.extraSpecialArgs = {
+                    inherit inputs;
+                    modules = importedModules.home;
+                    pkgs = import nixpkgs {
+                      inherit system;
+                    };
                   };
-                };
 
-                home-manager.users = let
-                  hostUsers =
-                    if builtins.hasAttr hostname importedUsers
-                    then importedUsers.${hostname}
-                    else {};
-                  globalUsers = importedUsers.globals;
+                  home-manager.users = let
+                    hostUsers =
+                      if builtins.hasAttr hostname importedUsers
+                      then importedUsers.${hostname}
+                      else {};
+                    globalUsers = importedUsers.globals;
 
-                  allUsers = builtins.filter (userName: !builtins.elem userName usersToExclude) (nixpkgs.lib.lists.unique (builtins.concatLists [
-                    (builtins.attrNames globalUsers)
-                    (builtins.attrNames hostUsers)
-                  ]));
-                in
-                  builtins.listToAttrs (builtins.map (
-                      userName: {
-                        name = userName;
-                        value = args: let
-                          base =
-                            if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
-                            then
-                              nixpkgs.lib.mkMerge [
-                                (globalUsers.${userName} args)
-                                (hostUsers.${userName} args)
-                              ]
-                            else if builtins.hasAttr userName globalUsers
-                            then globalUsers.${userName} args
-                            else hostUsers.${userName} args;
-                        in
-                          nixpkgs.lib.recursiveUpdate base {
-                            imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
-                          };
-                      }
-                    )
-                    allUsers);
-              }
-            ];
-          }
+                    allUsers = builtins.filter (userName: !builtins.elem userName usersToExclude) (nixpkgs.lib.lists.unique (builtins.concatLists [
+                      (builtins.attrNames globalUsers)
+                      (builtins.attrNames hostUsers)
+                    ]));
+                  in
+                    builtins.listToAttrs (builtins.map (
+                        userName: {
+                          name = userName;
+                          value = args: let
+                            base =
+                              if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
+                              then
+                                nixpkgs.lib.mkMerge [
+                                  (globalUsers.${userName} args)
+                                  (hostUsers.${userName} args)
+                                ]
+                              else if builtins.hasAttr userName globalUsers
+                              then globalUsers.${userName} args
+                              else hostUsers.${userName} args;
+                          in
+                            nixpkgs.lib.recursiveUpdate base {
+                              imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
+                            };
+                        }
+                      )
+                      allUsers);
+                }
+              ];
+            }
+          else null
+      )
+      importedHosts;
+
+    darwinConfigurations =
+      builtins.mapAttrs (
+        hostname: configuration: let
+          system =
+            if builtins.hasAttr "systemType" configuration
+            then configuration.systemType
+            else "aarch64-darwin"; # Default to aarch64-darwin if not specified
+          usersToExclude =
+            if builtins.hasAttr "usersToExclude" configuration
+            then configuration.usersToExclude
+            else []; # Default to empty list if not specified
+        in
+          if builtins.match ".+-darwin" system != null
+          then
+            nix-darwin.lib.darwinSystem {
+              inherit system;
+
+              specialArgs = {
+                inherit inputs;
+                inherit (nixpkgs) lib;
+                inherit hostname;
+                inherit system;
+                modules = importedModules.macos;
+              };
+
+              modules = [
+                (
+                  if builtins.pathExists ./default-host-config.nix
+                  then ./default-host-config.nix
+                  else {}
+                )
+
+                (builtins.removeAttrs configuration ["systemType" "usersToExclude"])
+
+                home-manager.darwinModules.home-manager
+                {
+                  home-manager.useGlobalPkgs = true;
+                  home-manager.useUserPackages = true;
+                  home-manager.backupFileExtension = "backup";
+
+                  home-manager.extraSpecialArgs = {
+                    inherit inputs;
+                    modules = importedModules.home;
+                    pkgs = import nixpkgs {
+                      inherit system;
+                    };
+                  };
+
+                  home-manager.users = let
+                    hostUsers =
+                      if builtins.hasAttr hostname importedUsers
+                      then importedUsers.${hostname}
+                      else {};
+                    globalUsers = importedUsers.globals;
+
+                    allUsers = builtins.filter (userName: !builtins.elem userName usersToExclude) (nixpkgs.lib.lists.unique (builtins.concatLists [
+                      (builtins.attrNames globalUsers)
+                      (builtins.attrNames hostUsers)
+                    ]));
+                  in
+                    builtins.listToAttrs (builtins.map (
+                        userName: {
+                          name = userName;
+                          value = args: let
+                            base = if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
+                              then
+                                nixpkgs.lib.mkMerge [
+                                  (globalUsers.${userName} args)
+                                  (hostUsers.${userName} args)
+                                ]
+                              else if builtins.hasAttr userName globalUsers
+                              then globalUsers.${userName} args
+                              else hostUsers.${userName} args;
+                          in
+                            nixpkgs.lib.recursiveUpdate base {
+                              imports = builtins.map (module: module args) (builtins.attrValues importedModules.home);
+                            };
+                        }
+                      )
+                      allUsers);
+                }
+              ];
+            }
+          else null
       )
       importedHosts;
   };
