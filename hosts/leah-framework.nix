@@ -134,7 +134,7 @@
     services.displayManager.sddm.enableHidpi = true;
     services.displayManager.sddm.wayland.enable = true;
     programs.niri.enable = true;
-    services.xserver.desktopManager.plasma6.enable = true;
+    services.desktopManager.plasma6.enable = true;
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
