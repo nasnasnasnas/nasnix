@@ -4,7 +4,7 @@
   ...
 }: {
   home.username = "saige";
-  home.homeDirectory = "/Users/saige";
+  home.homeDirectory = "/home/saige";
 
   modules.starship.enable = true;
 
