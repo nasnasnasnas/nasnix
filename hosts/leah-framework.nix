@@ -3,6 +3,7 @@
   __functor = self: {
     config,
     pkgs,
+    pkgs-unstable,
     ...
   }: let
     session-desktop = name: execCmd:
@@ -125,12 +126,12 @@
       vscode-fhs
       ghostty
       alacritty
-      (catppuccin-sddm.override {
+      (pkgs-unstable.catppuccin-sddm.override {
         flavor = "mocha";
         accent = "lavender";
-        font  = "Noto Sans";
+        font = "Noto Sans";
         fontSize = "12";
-#        background = "${./wallpaper.png}";
+        #        background = "${./wallpaper.png}";
         loginBackground = true;
       })
     ];

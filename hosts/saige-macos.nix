@@ -10,7 +10,7 @@
 
     system.configurationRevision = self.rev or self.dirtyRev or null;
 
-#    usersToExclude = [ "saige" ];
+    #    usersToExclude = [ "saige" ];
 
     system.primaryUser = "leah";
 
@@ -36,7 +36,7 @@
     };
 
     homebrew.enable = true;
-#    homebrew.taps = builtins.attrNames self.nix-homebrew.taps;
+    #    homebrew.taps = builtins.attrNames self.nix-homebrew.taps;
     homebrew.casks = [
       "ghostty"
     ];

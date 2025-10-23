@@ -298,7 +298,8 @@
                         userName: {
                           name = userName;
                           value = args: let
-                            base = if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
+                            base =
+                              if builtins.hasAttr userName globalUsers && builtins.hasAttr userName hostUsers
                               then
                                 nixpkgs.lib.mkMerge [
                                   (globalUsers.${userName} args)
