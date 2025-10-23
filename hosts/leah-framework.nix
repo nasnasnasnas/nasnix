@@ -125,16 +125,27 @@
       vscode-fhs
       ghostty
       alacritty
+      pkgs.catppuccin-sddm.override {
+        flavor = "mocha";
+        accent = "lavender";
+        font  = "Noto Sans";
+        fontSize = "12";
+#        background = "${./wallpaper.png}";
+        loginBackground = true;
+      }
     ];
 
     # Enable the COSMIC desktop environment
     services.desktopManager.cosmic.enable = true;
-    services.xserver.enable = true;
-    services.displayManager.sddm.enable = true;
-    services.displayManager.sddm.enableHidpi = true;
-    services.displayManager.sddm.wayland.enable = true;
-    programs.niri.enable = true;
     services.desktopManager.plasma6.enable = true;
+    programs.niri.enable = true;
+    services.xserver.enable = true;
+    services.displayManager.sddm = {
+      theme = "catppuccin-mocha-lavender";
+      enable = true;
+      enableHidpi = true;
+      wayland.enable = true;
+    };
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
