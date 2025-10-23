@@ -125,14 +125,14 @@
       vscode-fhs
       ghostty
       alacritty
-      pkgs.catppuccin-sddm.override {
+      (catppuccin-sddm.override {
         flavor = "mocha";
         accent = "lavender";
         font  = "Noto Sans";
         fontSize = "12";
 #        background = "${./wallpaper.png}";
         loginBackground = true;
-      }
+      })
     ];
 
     # Enable the COSMIC desktop environment
