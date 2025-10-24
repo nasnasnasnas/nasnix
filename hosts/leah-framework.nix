@@ -126,11 +126,16 @@
       vscode-fhs
       ghostty
       alacritty
-      (pkgs-unstable.catppuccin-sddm.override {
+      jetbrains-toolbox
+      vesktop
+      element-desktop
+      nheko
+      fluffychat
+      (catppuccin-sddm.override {
         flavor = "mocha";
-        accent = "lavender";
+#        accent = "lavender";
         font = "Noto Sans";
-        fontSize = "12";
+        fontSize = "13";
         #        background = "${./wallpaper.png}";
         loginBackground = true;
       })
@@ -142,7 +147,7 @@
     programs.niri.enable = true;
     services.xserver.enable = true;
     services.displayManager.sddm = {
-      theme = "catppuccin-mocha-lavender";
+      theme = "catppuccin-mocha"; #-lavender";
       enable = true;
       enableHidpi = true;
       wayland.enable = true;
