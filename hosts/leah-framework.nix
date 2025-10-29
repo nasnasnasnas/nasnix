@@ -1,39 +1,31 @@
 {
-  systemType = "aarch64-linux";
+  systemType = "x86_64-linux";
   __functor = self: {
     config,
     pkgs,
     pkgs-unstable,
+    inputs,
+    modulesPath,
     ...
-  }: let
-    session-desktop = name: execCmd:
-      pkgs.runCommandNoCC ("session-" + name) {
-      } ''
-              mkdir -p $out/share/wayland-sessions
-              cat > $out/share/wayland-sessions/${name}.desktop <<'EOF'
-        [Desktop Entry]
-        Name=${name}
-        Comment=${name} Wayland session
-        Exec=${execCmd}
-        Type=Application
-        X-GDM-Session-Type=wayland
-        EOF
-      '';
-
-    niri-session-package = session-desktop "niri" "niri-session";
-    cosmic-session-package = session-desktop "cosmic" "cosmic-session";
-    kde-wayland-session-package = session-desktop "plasma-wayland" "startplasma-wayland";
-  in {
+  }: {
     inherit (self) systemType;
 
     imports = [
       # Include the results of the hardware scan.
       # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
+      inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
+      (modulesPath + "/installer/scan/not-detected.nix")
     ];
+
+    services.fwupd.enable = true;
 
     # Bootloader.
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
+
+    boot.initrd.kernelModules = [ "amdgpu" ];
+
+    boot.initrd.luks.devices."luks-87607e30-cb74-4cc7-b736-ec3c2e68f6ce".device = "/dev/disk/by-uuid/87607e30-cb74-4cc7-b736-ec3c2e68f6ce";
 
     # networking.hostName = "saige-macbook-nixos"; # Define your hostname. NOW DONE IN flake.nix
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -65,9 +57,6 @@
 
     # Enable the X11 windowing system.
     # services.xserver.enable = true;
-
-    # enable the spice guest agent
-    services.spice-vdagentd.enable = true;
 
     # Enable the GNOME Desktop Environment.
     # services.xserver.displayManager.gdm.enable = true;
@@ -112,6 +101,9 @@
 
     # Install firefox.
     programs.firefox.enable = true;
+    programs._1password.enable = true;
+    programs._1password-gui.enable = true;
+    programs.steam.enable = true;
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
@@ -129,8 +121,10 @@
       jetbrains-toolbox
       vesktop
       element-desktop
-      nheko
-      fluffychat
+#       nheko
+#       fluffychat
+      microsoft-edge
+      neofetch
       (catppuccin-sddm.override {
         flavor = "mocha";
 #        accent = "lavender";
@@ -147,7 +141,7 @@
     programs.niri.enable = true;
     services.xserver.enable = true;
     services.displayManager.sddm = {
-      theme = "catppuccin-mocha"; #-lavender";
+      theme = "breeze"; #-lavender";
       enable = true;
       enableHidpi = true;
       wayland.enable = true;

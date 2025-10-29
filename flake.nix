@@ -7,6 +7,8 @@
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -97,6 +99,8 @@
               else "x86_64-linux" # Default to x86_64-linux if not specified
             else if name == "lib"
             then nixpkgs.lib
+            else if name == "nixos-hardware"
+            then inputs.nixos-hardware
             else if builtins.hasAttr name inputs
             then inputs.${name}
             else if hasDefault
