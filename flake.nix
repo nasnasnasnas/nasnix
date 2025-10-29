@@ -58,10 +58,11 @@
 
     importedHardware = haumea.lib.load {
       src = ./hardware;
-      inputs = {
-        inherit inputs;
-        inherit (nixpkgs) lib;
-      };
+#      inputs = {
+#        inherit inputs;
+#        inherit (nixpkgs) lib;
+#      };
+      loader = haumea.lib.loaders.verbatim;
     };
 
     importedHosts = haumea.lib.load {

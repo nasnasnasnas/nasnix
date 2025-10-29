@@ -6,6 +6,7 @@
     pkgs-unstable,
     inputs,
     modulesPath,
+    lib,
     ...
   }: {
     inherit (self) systemType;
@@ -25,7 +26,9 @@
 
     boot.initrd.kernelModules = [ "amdgpu" ];
 
-  boot.initrd.luks.devices."luks-4605a5aa-60f0-4ba3-8ed1-7925f881670d".device = "/dev/disk/by-uuid/4605a5aa-60f0-4ba3-8ed1-7925f881670d";
+    boot.initrd.luks.devices."luks-4605a5aa-60f0-4ba3-8ed1-7925f881670d".device = "/dev/disk/by-uuid/4605a5aa-60f0-4ba3-8ed1-7925f881670d";
+
+#    hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
     # networking.hostName = "saige-macbook-nixos"; # Define your hostname. NOW DONE IN flake.nix
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -119,6 +122,7 @@
       git
       gh
       bun
+      pkgs-unstable.nodejs_24
       vscode-fhs
       ghostty
       alacritty
