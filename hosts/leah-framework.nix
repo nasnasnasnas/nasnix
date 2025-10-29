@@ -13,8 +13,8 @@
     imports = [
       # Include the results of the hardware scan.
       # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
-      inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
       (modulesPath + "/installer/scan/not-detected.nix")
+      inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
     ];
 
     services.fwupd.enable = true;
@@ -25,7 +25,7 @@
 
     boot.initrd.kernelModules = [ "amdgpu" ];
 
-    boot.initrd.luks.devices."luks-87607e30-cb74-4cc7-b736-ec3c2e68f6ce".device = "/dev/disk/by-uuid/87607e30-cb74-4cc7-b736-ec3c2e68f6ce";
+  boot.initrd.luks.devices."luks-4605a5aa-60f0-4ba3-8ed1-7925f881670d".device = "/dev/disk/by-uuid/4605a5aa-60f0-4ba3-8ed1-7925f881670d";
 
     # networking.hostName = "saige-macbook-nixos"; # Define your hostname. NOW DONE IN flake.nix
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -57,6 +57,8 @@
 
     # Enable the X11 windowing system.
     # services.xserver.enable = true;
+#     services.xserver.enable = true;
+    services.xserver.videoDrivers = [ "amdgpu" ];
 
     # Enable the GNOME Desktop Environment.
     # services.xserver.displayManager.gdm.enable = true;
@@ -104,6 +106,7 @@
     programs._1password.enable = true;
     programs._1password-gui.enable = true;
     programs.steam.enable = true;
+    programs.kdeconnect.enable = true;
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
@@ -115,6 +118,7 @@
       #  wget
       git
       gh
+      bun
       vscode-fhs
       ghostty
       alacritty
