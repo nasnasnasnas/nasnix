@@ -1,5 +1,6 @@
 {
   systemType = "x86_64-linux";
+  useUnstable = true;
   __functor = self: {
     config,
     pkgs,
@@ -58,7 +59,7 @@
       LC_TIME = "en_US.UTF-8";
     };
 
-      services.fprintd.enable = true;
+    services.fprintd.enable = true;
 
     # Enable the X11 windowing system.
     # services.xserver.enable = true;

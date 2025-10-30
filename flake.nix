@@ -156,15 +156,18 @@
             if builtins.hasAttr "usersToExclude" configuration
             then configuration.usersToExclude
             else []; # Default to empty list if not specified
+          nixpkgsToUse = if configuration.useUnstable or false
+            then nixpkgs-unstable
+            else nixpkgs;
         in
           if builtins.match ".+-linux" system != null
           then
-            nixpkgs.lib.nixosSystem {
+            nixpkgsToUse.lib.nixosSystem {
               inherit system;
 
               specialArgs = {
                 inherit inputs;
-                inherit (nixpkgs) lib;
+                inherit (nixpkgsToUse) lib;
                 inherit hostname;
                 inherit system;
                 modules = importedModules.nixos;
@@ -183,7 +186,7 @@
                   else {}
                 )
 
-                (builtins.removeAttrs configuration ["systemType" "usersToExclude"]) # Remove our own custom attributes but pass configuration
+                (builtins.removeAttrs configuration ["systemType" "usersToExclude" "useUnstable"]) # Remove our own custom attributes but pass configuration
 
                 home-manager.nixosModules.home-manager
                 {
@@ -194,7 +197,7 @@
                   home-manager.extraSpecialArgs = {
                     inherit inputs;
                     modules = importedModules.home;
-                    pkgs = import nixpkgs {
+                    pkgs = import nixpkgsToUse {
                       inherit system;
                     };
                   };
