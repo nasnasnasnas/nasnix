@@ -123,6 +123,7 @@
       "1password/custom_allowed_browsers" = {
         text = ''
           zen-beta
+          zen
         '';
         mode = "0755";
       };
@@ -146,8 +147,8 @@
       jetbrains-toolbox
       vesktop
       element-desktop
-#       nheko
-#       fluffychat
+      pkgs-unstable.nheko
+      pkgs-unstable.fluffychat
       microsoft-edge
       neofetch
       (catppuccin-sddm.override {
@@ -168,6 +169,7 @@
     services.desktopManager.plasma6.enable = true;
     programs.niri.enable = true;
     services.xserver.enable = true;
+    services.xserver.xkb.options = "terminate:";
     services.displayManager.sddm = {
       theme = "breeze"; #-lavender";
       enable = true;
