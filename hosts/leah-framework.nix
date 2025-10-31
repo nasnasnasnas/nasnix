@@ -119,6 +119,15 @@
     programs.steam.enable = true;
     programs.kdeconnect.enable = true;
 
+    environment.etc = {
+      "1password/custom_allowed_browsers" = {
+        text = ''
+          zen-beta
+        '';
+        mode = "0755";
+      };
+    };
+
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
 
