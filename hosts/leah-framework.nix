@@ -27,6 +27,8 @@
 
     boot.initrd.kernelModules = [ "amdgpu" ];
 
+    boot.kernelPackages = pkgs.linuxPackages_latest;
+
     boot.initrd.luks.devices."luks-4605a5aa-60f0-4ba3-8ed1-7925f881670d".device = "/dev/disk/by-uuid/4605a5aa-60f0-4ba3-8ed1-7925f881670d";
 
 #    hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -111,6 +113,7 @@
     programs.firefox.enable = true;
     programs._1password.enable = true;
     programs._1password-gui.enable = true;
+    programs._1password-gui.polkitPolicyOwners = [ "leah" ];
     programs.steam.enable = true;
     programs.kdeconnect.enable = true;
 
@@ -144,6 +147,9 @@
         #        background = "${./wallpaper.png}";
         loginBackground = true;
       })
+
+      inputs.zen-browser.packages."${system}".default
+      floorp
     ];
 
     # Enable the COSMIC desktop environment
@@ -157,6 +163,9 @@
       enableHidpi = true;
       wayland.enable = true;
     };
+
+    services.tailscale.enable = true;
+    services.tailscale.package = pkgs-unstable.tailscale;
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
