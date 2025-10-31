@@ -147,8 +147,8 @@
       jetbrains-toolbox
       vesktop
       element-desktop
-      pkgs-unstable.nheko
-      pkgs-unstable.fluffychat
+      # pkgs-unstable.nheko
+      # pkgs-unstable.fluffychat
       microsoft-edge
       neofetch
       (catppuccin-sddm.override {
