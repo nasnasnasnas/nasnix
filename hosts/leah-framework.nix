@@ -42,7 +42,7 @@
 
     # Enable networking
     networking.networkmanager.enable = true;
-    networking.networkmanager.wifi.backend = "iwd";
+#     networking.networkmanager.wifi.backend = "iwd";
     networking.networkmanager.wifi.powersave = false;
 
     # Set your time zone.
@@ -151,6 +151,10 @@
       # pkgs-unstable.fluffychat
       microsoft-edge
       neofetch
+      prismlauncher
+      lunar-client
+      powertop
+      rustup
       (catppuccin-sddm.override {
         flavor = "mocha";
 #        accent = "lavender";
@@ -179,6 +183,26 @@
 
     services.tailscale.enable = true;
     services.tailscale.package = pkgs-unstable.tailscale;
+
+    system.autoUpgrade = {
+      enable = true;
+      flake = inputs.self.outPath;
+      flags = [
+        "--print-build-logs"
+      ];
+      dates = "04:00";
+      randomizedDelaySec = "45min";
+      allowReboot = true;
+    };
+
+    nix.gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 45d";
+    };
+
+    nix.optimise.automatic = true;
+    nix.optimise.dates = [ "03:30" ];
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
