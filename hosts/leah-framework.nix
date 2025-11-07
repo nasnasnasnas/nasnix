@@ -147,7 +147,7 @@
       jetbrains-toolbox
       vesktop
       element-desktop
-      # pkgs-unstable.nheko
+#      pkgs-unstable.nheko
       # pkgs-unstable.fluffychat
       microsoft-edge
       neofetch
@@ -155,6 +155,8 @@
       lunar-client
       powertop
       rustup
+      epiphany
+      seahorse
       (catppuccin-sddm.override {
         flavor = "mocha";
 #        accent = "lavender";
@@ -165,7 +167,7 @@
       })
 
       inputs.zen-browser.packages."${system}".default
-      floorp
+#      pkgs-unstable.floorp-bin
     ];
 
     # Enable the COSMIC desktop environment
@@ -183,6 +185,8 @@
 
     services.tailscale.enable = true;
     services.tailscale.package = pkgs-unstable.tailscale;
+    networking.nameservers = [ "100.100.100.100" "1.1.1.1" ];
+    networking.search = [ "rockhopper-butterfly.ts.net" ];
 
     system.autoUpgrade = {
       enable = true;
@@ -203,6 +207,25 @@
 
     nix.optimise.automatic = true;
     nix.optimise.dates = [ "03:30" ];
+
+    modules.wifiman.enable = false;
+
+    # use gnome keyring instead
+    security.pam.services = {
+      login.kwallet.enable = lib.mkForce false;
+      kde.kwallet.enable = lib.mkForce false;
+    };
+    services.gnome.gnome-keyring.enable = true;
+#    programs.seahorse.enable = true;
+
+#    services.tlp.enable = false;
+#    services.tuned = {
+#      enable = true;
+#      ppdSupport = true;
+#    };
+
+    #services.cpupower-gui.enable = true;
+
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
