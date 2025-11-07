@@ -210,11 +210,7 @@
 
     modules.wifiman.enable = false;
 
-    # use gnome keyring instead
-    security.pam.services = {
-      login.kwallet.enable = lib.mkForce false;
-      kde.kwallet.enable = lib.mkForce false;
-    };
+    # use gnome keyring
     services.gnome.gnome-keyring.enable = true;
 #    programs.seahorse.enable = true;
 
