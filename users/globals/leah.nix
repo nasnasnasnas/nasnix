@@ -1,6 +1,8 @@
 {
   config,
   pkgs,
+  lib,
+  inputs,
   ...
 }: {
   # Home Manager needs a bit of information about you and the
@@ -8,7 +10,23 @@
   home.username = "leah";
   home.homeDirectory = "/home/leah";
 
+  programs.zsh.enable = true;
+
+  xdg.configFile."niri/config.kdl".source = ../../common/leah/niri.kdl;
+
   modules.starship.enable = true;
+  programs.starship = {
+    settings = lib.mkMerge [
+      (builtins.fromTOML
+        (builtins.readFile "${pkgs.starship}/share/starship/presets/catppuccin-powerline.toml"
+      ))
+      {
+        # here goes my custom configurations
+        palette = lib.mkForce "catppuccin_macchiato";
+        cmd_duration.show_notifications = lib.mkForce false;
+      }
+    ];
+  };
 
   # This value determines the Home Manager release that your
   home.packages = [

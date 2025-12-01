@@ -3,15 +3,21 @@
 
   inputs = {
     # todo: try unstable?
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11"; # nixos-unstable
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-25.11"; #release-25.05
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+
+    home-manager-unstable = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     haumea = {
@@ -47,6 +53,8 @@
       # to have it up-to-date or simply don't specify the nixpkgs input
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
   };
 
   outputs = inputs @ {
@@ -55,6 +63,8 @@
     nixpkgs-unstable,
     nix-darwin,
     home-manager,
+    home-manager-unstable,
+    nix-flatpak,
     haumea,
     ...
   }: let
@@ -88,7 +98,7 @@
           (builtins.mapAttrs (name: hasDefault:
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then
-              import nixpkgs {
+              import (if loaded.useUnstable or false then nixpkgs-unstable else nixpkgs) {
                 system = loaded.systemType;
                 config.allowUnfree = true;
               }
@@ -166,6 +176,9 @@
           nixpkgsToUse = if configuration.useUnstable or false
             then nixpkgs-unstable
             else nixpkgs;
+          homeManagerToUse = if configuration.useUnstable or false
+            then home-manager-unstable
+            else home-manager;
         in
           if builtins.match ".+-linux" system != null
           then
@@ -178,6 +191,7 @@
                 inherit hostname;
                 inherit system;
                 modules = importedModules.nixos;
+                nixpkgs = nixpkgsToUse;
               };
               modules = [
                 # Load the hardware configuration if it exists from the hardware directory
@@ -195,7 +209,9 @@
 
                 (builtins.removeAttrs configuration ["systemType" "usersToExclude" "useUnstable"]) # Remove our own custom attributes but pass configuration
 
-                home-manager.nixosModules.home-manager
+                nix-flatpak.nixosModules.nix-flatpak
+
+                homeManagerToUse.nixosModules.home-manager
                 {
                   home-manager.useGlobalPkgs = true;
                   home-manager.useUserPackages = true;
