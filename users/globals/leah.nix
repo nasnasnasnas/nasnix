@@ -4,21 +4,43 @@
   lib,
   inputs,
   ...
-}: {
+}:
+{
+  imports = [
+    inputs.noctalia.homeModules.default
+  ];
+
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "leah";
   home.homeDirectory = "/home/leah";
 
   programs.zsh.enable = true;
+  programs.git = {
+    enable = true;
+    signing = {
+      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII/tUwFHraeGdHJFOpus9CmYKOVNulm6OeZlD5VBJfjF";
+      format = "ssh";
+      signByDefault = true;
+      signer = "/run/current-system/sw/bin/op-ssh-sign";
+    };
+    settings.user = {
+      name = "leah";
+      email = "catgirl@catgirlin.space";
+    };
+  };
 
   xdg.configFile."niri/config.kdl".source = ../../common/leah/niri.kdl;
+  xdg.configFile."waybar" = {
+    source = ../../common/leah/waybar/.;
+    recursive = true;
+  };
 
   modules.starship.enable = true;
   programs.starship = {
     settings = lib.mkMerge [
-      (builtins.fromTOML
-        (builtins.readFile "${pkgs.starship}/share/starship/presets/catppuccin-powerline.toml"
+      (builtins.fromTOML (
+        builtins.readFile "${pkgs.starship}/share/starship/presets/catppuccin-powerline.toml"
       ))
       {
         # here goes my custom configurations
