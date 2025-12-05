@@ -208,6 +208,7 @@
         gimp3
         android-studio
         brightnessctl
+        polkit_gnome
 
         # kde stuff
         kdePackages.ark
