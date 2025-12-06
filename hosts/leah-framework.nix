@@ -227,6 +227,7 @@
       ];
 
       programs.zsh.enable = true;
+      programs.fish.enable = true;
 
       # Enable the COSMIC desktop environment
       services.desktopManager.cosmic.enable = true;
