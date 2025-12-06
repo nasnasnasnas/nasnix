@@ -273,11 +273,8 @@
       modules.wifiman.enable = true;
 
       # use gnome keyring
-      security.pam.services = {
-        #       login.kwallet.enable = lib.mkForce false;
-        #       kde.kwallet.enable = lib.mkForce false;
-      };
       services.gnome.gnome-keyring.enable = true;
+      security.pam.services.login.enableGnomeKeyring = true;
       security.pam.services.swaylock = { };
       #    programs.seahorse.enable = true;
 
