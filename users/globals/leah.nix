@@ -16,6 +16,7 @@
   home.homeDirectory = "/home/leah";
 
   programs.zsh.enable = true;
+  programs.fish.enable = true;
   programs.git = {
     enable = true;
     signing = {
@@ -141,7 +142,7 @@
     };
 
     bar = {
-      backgroundOpacity = 0;
+      backgroundOpacity = 0.1;
       density = "comfortable";
       outerCorners = false;
       widgets = {
