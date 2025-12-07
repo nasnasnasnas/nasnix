@@ -126,6 +126,8 @@
       programs.steam.enable = true;
       programs.kdeconnect.enable = true;
 
+      programs.dconf.enable = true;
+
       environment.etc = {
         "1password/custom_allowed_browsers" = {
           text = ''
