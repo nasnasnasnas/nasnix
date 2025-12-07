@@ -223,7 +223,14 @@
             id = "Brightness";
           }
           {
-            formatHorizontal = "h:mm:ss AP\nddd, MMM dd";
+            formatHorizontal = "h:mm:ss AP";
+            formatVertical = "HH mm - dd MM";
+            id = "Clock";
+            useCustomFont = false;
+            usePrimaryColor = false;
+          }
+          {
+            formatHorizontal = "ddd, MMM dd";
             formatVertical = "HH mm - dd MM";
             id = "Clock";
             useCustomFont = false;
