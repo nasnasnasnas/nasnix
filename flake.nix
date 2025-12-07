@@ -105,6 +105,9 @@
               import (if loaded.useUnstable or false then nixpkgs-unstable else nixpkgs) {
                 system = loaded.systemType;
                 config.allowUnfree = true;
+                config.permittedInsecurePackages = [
+                "olm-3.2.16"
+              ];
               }
             else if name == "pkgs-unstable" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then
