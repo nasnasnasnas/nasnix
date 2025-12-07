@@ -681,3 +681,5 @@ layer-rule {
   match namespace="^noctalia-overview*"
   place-within-backdrop true
 }
+
+prefer-no-csd
