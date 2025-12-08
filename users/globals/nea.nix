@@ -52,6 +52,12 @@
     pkgs.htop
   ];
 
+  dconf.settings = {
+   "org/gnome/desktop/interface" = {
+     color-scheme = "prefer-dark";
+   };
+  };
+
   programs.noctalia-shell.enable = true;
   programs.noctalia-shell.settings = {
     settingsVersion = 26;
@@ -131,10 +137,19 @@
 
     colorSchemes = {
       predefinedScheme = "Tokyo Night";
-      darkMode = false;
+      darkMode = true;
       schedulingMode = "location";
       matugenSchemeType = "scheme-content";
       generateTemplatesForPredefined = true;
+    };
+
+    templates = {
+      gtk = true;
+      qt = true;
+      ghostty = true;
+      code = true;
+      telegram = true;
+      niri = true;
     };
 
     bar = {
