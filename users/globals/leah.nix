@@ -56,6 +56,15 @@
     pkgs.htop
   ];
 
+  home.file.".cache/noctalia/wallpapers.json" = {
+    text = builtins.toJSON {
+      defaultWallpaper = ../../common/nas-flag-wallpaper.png;
+      wallpapers = {
+        "DP-1" = ../../common/nas-flag-wallpaper.png;
+      };
+    };
+  };
+
   programs.noctalia-shell.enable = true;
   programs.noctalia-shell.settings = {
     settingsVersion = 26;

@@ -224,6 +224,7 @@
         flyctl
 
         inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
+        whitesur-icon-theme
       ];
 
       programs.zsh.enable = true;
@@ -297,7 +298,13 @@
         submissionNick = "puppyleah";
       };
 
-      environment.sessionVariables.NIXOS_OZONE_WL = "1";
+      environment.sessionVariables = {
+        NIXOS_OZONE_WL = "1";
+        QT_QPA_PLATFORM = "wayland;xcb";
+        QT_QPA_PLATFORMTHEME = "qt5ct";
+        QT_STYLE_OVERRIDE = "Fusion";
+        QS_ICON_THEME = "WhiteSur-dark";
+      };
 
       services.flatpak.enable = true;
       services.flatpak.packages = [
