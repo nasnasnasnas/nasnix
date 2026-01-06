@@ -3,12 +3,12 @@
 
   inputs = {
     # todo: try unstable?
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -68,12 +68,14 @@
               import nixpkgs {
                 system = loaded.systemType;
                 config.allowUnfree = true;
+                config.nvidia.acceptLicense = true;
               }
             else if name == "pkgs-unstable" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then
               import nixpkgs-unstable {
                 system = loaded.systemType;
                 config.allowUnfree = true;
+                config.nvidia.acceptLicense = true;
               }
             else if name == "modulesPath"
             then "${nixpkgs}/nixos/modules"

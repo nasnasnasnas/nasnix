@@ -1,0 +1,1 @@
+sudo nixos-rebuild switch --flake .#magicbox2 --target-host root@stream.szpunar.cloud --verbose --use-substitutes
