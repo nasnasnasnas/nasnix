@@ -38,8 +38,8 @@
   '';
 
 
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelPackages = inputs.nix-cachyos-kernel.legacyPackages.x86_64-linux.linux-cachyos-latest-zen4;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  #boot.kernelPackages = inputs.nix-cachyos-kernel.legacyPackages.x86_64-linux.linux-cachyos-latest-zen4;
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/5db81415-d81e-44c9-a833-6467c781ed26";

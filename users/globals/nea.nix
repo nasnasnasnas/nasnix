@@ -13,7 +13,7 @@
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "nea";
-  home.homeDirectory = "/home/nea";
+  home.homeDirectory = lib.mkForce "/home/nea";
 
   programs.zsh.enable = true;
   programs.git = {

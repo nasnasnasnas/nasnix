@@ -31,7 +31,7 @@ input {
     mouse {
         // off
         // natural-scroll
-        accel-speed -0.7
+        accel-speed -0.8
         // accel-profile "flat"
         // scroll-method "no-scroll"
         // middle-emulation
@@ -102,21 +102,21 @@ output "DP-2" {
     mode "2560x1440@74.925"
     scale 1
     transform "normal"
-    position x=3072 y=0
+    position x=2560 y=0
 }
 
 output "HDMI-A-1" {
     mode "3840x2160@60.000"
-    scale 1.25
+    scale 1.5
     transform "normal"
-    position x=0 y=-90
+    position x=0 y=-45
 }
 
 output "DP-1" {
     mode "3840x2160@60.000"
-    scale 1.25
+    scale 1.5
     transform "normal"
-    position x=5632 y=0
+    position x=5120 y=0
 }
 
 gestures {

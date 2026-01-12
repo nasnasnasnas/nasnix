@@ -13,7 +13,7 @@
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "leah";
-  home.homeDirectory = "/home/leah";
+  home.homeDirectory = lib.mkForce "/home/leah";
 
   programs.zsh.enable = true;
   programs.fish.enable = true;

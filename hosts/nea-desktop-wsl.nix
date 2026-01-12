@@ -8,7 +8,7 @@
   }: {
     inherit (self) systemType;
 
-    usersToExclude = ["saige"]; # Exclude these users from users/globals
+    usersToExclude = ["leah" "nea"]; # Exclude these users from users/globals
 
     imports = [
       inputs.nixos-wsl.nixosModules.default
@@ -41,7 +41,6 @@
 
     programs.nix-ld = {
       enable = true;
-      package = pkgs.nix-ld-rs; # only for NixOS 24.05
     };
 
     modules.fd.enable = true; # Enable fd file search

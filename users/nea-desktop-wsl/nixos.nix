@@ -2,10 +2,11 @@
   config,
   pkgs,
   inputs,
+  lib,
   ...
 }: {
   home.username = "nixos";
-  home.homeDirectory = "/home/nixos";
+  home.homeDirectory = lib.mkForce "/home/nixos";
 
   modules.starship.enable = true;
 

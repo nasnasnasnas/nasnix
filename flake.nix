@@ -2,7 +2,9 @@
   description = "NAS Nix";
 
   inputs = {
-    # todo: try unstable?
+
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11"; # nixos-unstable
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -71,6 +73,7 @@
     home-manager,
     home-manager-unstable,
     nix-flatpak,
+    determinate,
     haumea,
     ...
   }: let
@@ -206,6 +209,8 @@
                 nixpkgs = nixpkgsToUse;
               };
               modules = [
+                determinate.nixosModules.default
+
                 # Load the hardware configuration if it exists from the hardware directory
                 (
                   if builtins.hasAttr hostname importedHardware
