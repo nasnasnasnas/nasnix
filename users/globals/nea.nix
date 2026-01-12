@@ -16,7 +16,6 @@
   home.homeDirectory = "/home/nea";
 
   programs.zsh.enable = true;
-  programs.fish.enable = true;
   programs.git = {
     enable = true;
     signing = {
@@ -28,6 +27,13 @@
     settings.user = {
       name = "nea";
       email = "git@nea.dev";
+    };
+  };
+
+  programs.gh = {
+    enable = true;
+    gitCredentialHelper = {
+      enable = true;
     };
   };
 
@@ -51,6 +57,16 @@
   home.packages = [
     pkgs.htop
   ];
+
+  programs.fish = {
+    enable = true;
+    interactiveShellInit = ''
+      set -U fish_greeting # Disable greeting
+    '';
+    plugins = [
+      { name = "nvm"; src = pkgs.fishPlugins.nvm.src; }
+    ];
+  };
 
   dconf.settings = {
    "org/gnome/desktop/interface" = {
@@ -153,16 +169,14 @@
     };
 
     bar = {
-      backgroundOpacity = 0.1;
+      position = "bottom";
+      backgroundOpacity = 0.8;
       density = "comfortable";
       outerCorners = false;
+      showCapsule = true;
+      marginVertical = 4;
       widgets = {
         left = [
-          {
-            icon = "rocket";
-            id = "CustomButton";
-            leftClickExec = "noctalia-shell ipc call launcher toggle";
-          }
           {
             colorizeIcons = false;
             hideUnoccupied = true;
@@ -171,25 +185,16 @@
             showLabelsOnlyWhenOccupied = false;
           }
           {
-            diskPath = "/";
-            id = "SystemMonitor";
-            showCpuTemp = true;
-            showCpuUsage = true;
-            showDiskUsage = true;
-            showMemoryAsPercent = false;
-            showMemoryUsage = true;
-            showNetworkStats = true;
-            usePrimaryColor = true;
-          }
-          {
             colorizeIcons = false;
             hideMode = "hidden";
             id = "ActiveWindow";
-            maxWidth = 250;
+            maxWidth = 500;
             scrollingMode = "hover";
             showIcon = true;
             useFixedWidth = false;
           }
+        ];
+        center = [
           {
             hideMode = "hidden";
             hideWhenIdle = false;
@@ -205,6 +210,17 @@
           }
         ];
         right = [
+          {
+            diskPath = "/";
+            id = "SystemMonitor";
+            showCpuTemp = false;
+            showCpuUsage = true;
+            showDiskUsage = false;
+            showMemoryAsPercent = false;
+            showMemoryUsage = true;
+            showNetworkStats = false;
+            usePrimaryColor = true;
+          }
           { id = "ScreenRecorder"; }
           {
             blacklist = [ ];
@@ -219,22 +235,18 @@
             showUnreadBadge = true;
           }
           {
-            deviceNativePath = "";
-            displayMode = "alwaysShow";
-            id = "Battery";
-            warningThreshold = 30;
-          }
-          { id = "PowerProfile"; }
-          {
             displayMode = "alwaysShow";
             id = "Volume";
           }
           {
-            displayMode = "alwaysShow";
-            id = "Brightness";
+            formatHorizontal = "h:mm:ss AP";
+            formatVertical = "HH mm - dd MM";
+            id = "Clock";
+            useCustomFont = false;
+            usePrimaryColor = false;
           }
           {
-            formatHorizontal = "h:mm:ss AP\nddd, MMM dd";
+            formatHorizontal = "ddd, MMM dd";
             formatVertical = "HH mm - dd MM";
             id = "Clock";
             useCustomFont = false;
@@ -250,7 +262,6 @@
             useDistroLogo = true;
           }
         ];
-        center = [ ];
       };
     };
 

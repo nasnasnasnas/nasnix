@@ -175,6 +175,11 @@
         clang
         github-desktop
         gh
+        nvs
+
+        spotify
+
+        whitesur-icon-theme
 
         nil
         powershell
@@ -204,8 +209,12 @@
         inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
       ];
 
+      programs.bash.enable = true;
       programs.zsh.enable = true;
       programs.fish.enable = true;
+
+      services.envfs.enable = true;
+      programs.nix-ld.enable = true;
 
       # Enable the COSMIC desktop environment
       services.desktopManager.cosmic.enable = true;
@@ -232,6 +241,13 @@
         dates = "04:00";
         randomizedDelaySec = "45min";
         allowReboot = true;
+      };
+    
+      environment.sessionVariables = {
+        QT_QPA_PLATFORM = "wayland;xcb";
+        QT_QPA_PLATFORMTHEME = "qt5ct";
+        QT_STYLE_OVERRIDE = "Fusion";
+        QS_ICON_THEME = "WhiteSur-dark";
       };
 
       nix.gc = {

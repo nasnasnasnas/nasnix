@@ -109,14 +109,20 @@ output "HDMI-A-1" {
     mode "3840x2160@60.000"
     scale 1.25
     transform "normal"
-    position x=0 y=100
+    position x=0 y=-90
 }
 
 output "DP-1" {
     mode "3840x2160@60.000"
     scale 1.25
     transform "normal"
-    position x=5632 y=100
+    position x=5632 y=0
+}
+
+gestures {
+    hot-corners {
+        off
+    }
 }
 
 
@@ -125,7 +131,7 @@ output "DP-1" {
 // https://yalter.github.io/niri/Configuration:-Layout
 layout {
     // Set gaps around windows in logical pixels.
-    gaps 16
+    gaps 8
 
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
@@ -175,7 +181,7 @@ layout {
         // off
 
         // How many logical pixels the ring extends out from the windows.
-        width 4
+        width 2
 
         // Colors can be set in a variety of ways:
         // - CSS named colors: "red"
@@ -231,7 +237,7 @@ layout {
     // You can enable drop shadows for windows.
     shadow {
         // Uncomment the next line to enable shadows.
-        // on
+        on
 
         // By default, the shadow draws only around its window, and not behind it.
         // Uncomment this setting to make the shadow draw behind its window.
@@ -363,7 +369,7 @@ window-rule {
 // Example: enable rounded corners for all windows.
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
-    geometry-corner-radius 12
+    geometry-corner-radius 8
     clip-to-geometry true
 }
 
@@ -619,7 +625,7 @@ binds {
 
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here
-    // so they may, for example, forward the key presses as-is to a remote machine.
+    // so they may, for example, forward the key presses as-is to a remote machine.s
     // It's a good idea to bind an escape hatch to toggle the inhibitor,
     // so a buggy application can't hold your session hostage.
     //
@@ -635,8 +641,11 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 
+    Ctrl+Shift+Space { spawn "1password" "--quick-access"; }
+
     // noctalia
     Mod+Space { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    Alt+Space { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
     Mod+S { spawn "noctalia-shell" "ipc" "call" "controlCenter" "toggle"; }
     Mod+Comma { spawn "noctalia-shell" "ipc" "call" "settings" "toggle"; }
 
@@ -657,6 +666,10 @@ binds {
 
 clipboard {
     disable-primary
+}
+
+debug {
+    honor-xdg-activation-with-invalid-serial
 }
 
 recent-windows {
