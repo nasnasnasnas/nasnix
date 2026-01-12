@@ -110,7 +110,7 @@ output "eDP-1" {
     position x=2560 y=1000
 }
 
-output "DP-3" {
+output "LG Electronics LG HDR 4K 0x00045AC9" {
     position x=0 y=0
 }
 
@@ -589,7 +589,7 @@ binds {
     Mod+Shift+Equal { set-window-height "+10%"; }
 
     // Move the focused window between the floating and the tiling layout.
-    // Mod+V       { toggle-window-floating; }
+    Mod+Ctrl+V       { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
     // Toggle tabbed column display mode.
@@ -605,6 +605,7 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
+    // Print { spawn-sh "flameshot gui"; }
     Print { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }

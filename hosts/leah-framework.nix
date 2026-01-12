@@ -153,7 +153,7 @@
       # $ nix search wget
       environment.systemPackages = with pkgs; [
         #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-        #  wget
+        wget
         git
         gh
         bun
@@ -164,11 +164,12 @@
         jetbrains-toolbox
         vesktop
         pkgs-unstable.element-desktop
-        #      pkgs-unstable.nheko
+        pkgs-unstable.nheko
         # pkgs-unstable.fluffychat
         microsoft-edge
         neofetch
         fastfetch
+        hyfetch
         prismlauncher
         lunar-client
         powertop
@@ -191,6 +192,8 @@
         cheese
         wl-clipboard
         libreoffice-fresh
+        # libreoffice-collabora
+        onlyoffice-desktopeditors
         rustup
         clang
         github-desktop
@@ -224,10 +227,18 @@
         flyctl
 
         inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
+        whitesur-icon-theme
+        flameshot
+        easyeffects
+
+        nextdns
+        bottles
       ];
 
       programs.zsh.enable = true;
       programs.fish.enable = true;
+
+      programs.alvr.enable = true;
 
       # Enable the COSMIC desktop environment
       services.desktopManager.cosmic.enable = true;
@@ -275,9 +286,13 @@
 
       # use gnome keyring
       services.gnome.gnome-keyring.enable = true;
-      security.pam.services.login.enableGnomeKeyring = true;
+      security.pam.services = {
+        greetd.enableGnomeKeyring = true;
+        greetd-password.enableGnomeKeyring = true;
+        login.enableGnomeKeyring = true;
+      };
       security.pam.services.swaylock = { };
-      #    programs.seahorse.enable = true;
+      programs.seahorse.enable = true;
 
       services.tlp.enable = false;
       services.tuned = {
@@ -297,7 +312,13 @@
         submissionNick = "puppyleah";
       };
 
-      environment.sessionVariables.NIXOS_OZONE_WL = "1";
+      environment.sessionVariables = {
+        NIXOS_OZONE_WL = "1";
+        QT_QPA_PLATFORM = "wayland;xcb";
+        QT_QPA_PLATFORMTHEME = "qt5ct";
+        QT_STYLE_OVERRIDE = "Fusion";
+        QS_ICON_THEME = "WhiteSur-dark";
+      };
 
       services.flatpak.enable = true;
       services.flatpak.packages = [
@@ -313,6 +334,14 @@
         liberation_ttf
         nerd-fonts.jetbrains-mono
       ];
+
+      programs.direnv.enable = true;
+
+      programs.gamescope = {
+        enable = true;
+        capSysNice = true;
+      };
+      programs.steam.gamescopeSession.enable = true;
 
       # Some programs need SUID wrappers, can be configured further or are
       # started in user sessions.
@@ -331,7 +360,12 @@
       # networking.firewall.allowedTCPPorts = [ ... ];
       # networking.firewall.allowedUDPPorts = [ ... ];
       # Or disable the firewall altogether.
-      # networking.firewall.enable = false;
+      networking.firewall.enable = false;
+
+      services.nextdns = {
+        enable = true;
+        arguments = [ "-config" "3a5b4a" "-cache-size" "10MB" ];
+      };
 
       # This value determines the NixOS release from which the default
       # settings for stateful data, like file locations and database versions
