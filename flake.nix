@@ -74,6 +74,7 @@
     home-manager-unstable,
     nix-flatpak,
     determinate,
+    nix-cachyos-kernel,
     haumea,
     ...
   }: let
@@ -210,6 +211,15 @@
               };
               modules = [
                 determinate.nixosModules.default
+
+                (
+                  { pkgs, ... }:
+                  {
+                    nixpkgs.overlays = [
+                      nix-cachyos-kernel.overlays.default
+                    ];
+                  }
+                )
 
                 # Load the hardware configuration if it exists from the hardware directory
                 (

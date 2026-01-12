@@ -118,6 +118,10 @@
         shell = pkgs.fish;
       };
 
+      nix.settings = {
+        eval-cores = 0;
+      };
+
       # Install firefox.
       programs.firefox.enable = true;
       programs._1password.enable = true;
