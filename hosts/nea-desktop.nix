@@ -101,6 +101,9 @@
         extraGroups = [
           "networkmanager"
           "wheel"
+          # winapps
+          "kvm"
+          "libvirtd"
         ];
         shell = pkgs.fish;
         packages = with pkgs; [
@@ -114,6 +117,9 @@
         extraGroups = [
           "networkmanager"
           "wheel"
+          # winapps
+          "kvm"
+          "libvirtd"
         ];
         shell = pkgs.fish;
       };
@@ -141,6 +147,9 @@
           mode = "0755";
         };
       };
+
+      virtualisation.libvirtd.enable = true;
+      programs.virt-manager.enable = true;
 
       # Allow unfree packages
       nixpkgs.config.allowUnfree = true;
@@ -181,6 +190,18 @@
         gh
         nvs
 
+
+        # winapps
+        dnsmasq
+        inputs.winapps.packages.x86_64-linux.winapps
+        inputs.winapps.packages.x86_64-linux.winapps-launcher
+        # curl
+        # dialog
+        # iproute2
+        # libnotify
+        # netcat-openbsd
+        # pkgs-unstable.freerdp
+
         spotify
 
         whitesur-icon-theme
@@ -211,7 +232,15 @@
         flyctl
 
         inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
+        adw-gtk3
+        kdePackages.qt6ct
       ];
+
+
+      # winapps
+      environment.variables = {
+        LIBVIRT_DEFAULT_URI = "qemu:///system";
+      };
 
       programs.bash.enable = true;
       programs.zsh.enable = true;

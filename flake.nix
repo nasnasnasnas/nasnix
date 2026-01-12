@@ -62,6 +62,11 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    winapps = {
+      url = "github:winapps-org/winapps";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 

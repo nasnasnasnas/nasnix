@@ -71,6 +71,7 @@
   dconf.settings = {
    "org/gnome/desktop/interface" = {
      color-scheme = "prefer-dark";
+     gtk-theme = "adw-gtk3";
    };
   };
 
@@ -152,9 +153,9 @@
     };
 
     colorSchemes = {
-      predefinedScheme = "Tokyo Night";
+      predefinedScheme = "Lilac AMOLED";
       darkMode = true;
-      schedulingMode = "location";
+      schedulingMode = "off";
       matugenSchemeType = "scheme-content";
       generateTemplatesForPredefined = true;
     };
@@ -184,6 +185,8 @@
             labelMode = "index";
             showLabelsOnlyWhenOccupied = false;
           }
+        ];
+        center = [
           {
             colorizeIcons = false;
             hideMode = "hidden";
@@ -194,7 +197,7 @@
             useFixedWidth = false;
           }
         ];
-        center = [
+        right = [
           {
             hideMode = "hidden";
             hideWhenIdle = false;
@@ -208,8 +211,6 @@
             useFixedWidth = false;
             visualizerType = "linear";
           }
-        ];
-        right = [
           {
             diskPath = "/";
             id = "SystemMonitor";
