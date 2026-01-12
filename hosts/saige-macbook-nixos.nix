@@ -7,6 +7,8 @@
   }: {
     inherit (self) systemType;
 
+    usersToExclude = ["leah" "nea" "nixos"];
+
     imports = [
       # Include the results of the hardware scan.
       # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
@@ -106,7 +108,7 @@
       gh
       vscode-fhs
       kitty
-      rofi-wayland
+      rofi
       ghostty
       alacritty
       foot

@@ -280,7 +280,7 @@
             }
           else null
       )
-      importedHosts;
+      (nixpkgs.lib.filterAttrs (k: v: nixpkgs.lib.hasSuffix "linux" v.systemType) importedHosts);
 
     darwinConfigurations =
       builtins.mapAttrs (
@@ -368,6 +368,6 @@
             }
           else null
       )
-      importedHosts;
+      (nixpkgs.lib.filterAttrs (k: v: nixpkgs.lib.hasSuffix "darwin" v.systemType) importedHosts);
   };
 }
