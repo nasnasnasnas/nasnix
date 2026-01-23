@@ -23,6 +23,8 @@
       fastfetch
       nixd
       htop
+      ffmpeg-full
+      dua
       damon # TUI for Nomad.
     ];
 
@@ -93,6 +95,7 @@
       chmod -R 755 /home/magicbox/media
       chmod -R 755 /home/magicbox/manual-media
 
+      sudo umount -l /mnt/zurg || true
       chown -R 1000:100 /mnt/zurg || true
       chmod -R 755 /mnt/zurg || true
       ''; 
@@ -115,6 +118,10 @@
       enable = true;
       useRoutingFeatures = "server";
     };
+
+    programs.fuse.enable = true;
+    programs.fuse.userAllowOther = true;
+
 
 
     # services.nomad = {
@@ -214,11 +221,86 @@
                 "--allow-non-empty"
                 "--dir-cache-time"
                 "10s"
+                "--poll-interval"
+                "15s"
+                "--umask"
+                "000"
                 "--vfs-cache-mode"
                 "full"
               ];
             };
             rclone.out.service = {
+              security_opt = [
+                "apparmor=unconfined"
+              ];
+            };
+            nzbdav.service = {
+              container_name = "nzbdav";
+              image = "nzbdav/nzbdav:latest";
+              restart = "unless-stopped";
+              healthcheck = {
+                test = [ "CMD-SHELL" "curl" "-f" "http://localhost:3000/health" "||" "exit" "1" ];
+                interval = "1m";
+                retries = 3;
+                start_period = "5s";
+                timeout = "5s";
+              };
+              environment = {
+                PUID = "1000";
+                PGID = "100";
+                TZ = "America/Indiana/Indianapolis";
+              };
+              networks = [
+                "magicbox-network"
+              ];
+              volumes = [
+                "/home/magicbox/config/nzbdav:/config"
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
+                "/home/magicbox/media:/data"
+              ];
+            };
+            nzbdav-rclone.service = {
+              image = "rclone/rclone:latest";
+              container_name = "nzbdav-rclone";
+              restart = "unless-stopped";
+              environment = {
+                PUID = "1000";
+                PGID = "100";
+                TZ = "America/Indiana/Indianapolis";
+              };
+              networks = [
+                "magicbox-network"
+              ];
+              depends_on = [ "nzbdav" ];
+              capabilities = {
+                SYS_ADMIN = true;
+              };
+              devices = [
+                "/dev/fuse:/dev/fuse:rwm"
+              ];
+              command = [
+                "mount"
+                "nzbdav:"
+                "/mnt/nzbdav"
+                "--uid=1000"
+                "--gid=100"
+                "--allow-other"
+                "--links"
+                "--use-cookies"
+                "--allow-non-empty"
+                "--vfs-cache-mode=full"
+                "--vfs-cache-max-size=100G"
+                "--vfs-cache-max-age=24h"
+                "--buffer-size=0M"
+                "--vfs-read-ahead=512M"
+                "--dir-cache-time=20s"
+              ];
+              volumes = [
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
+                "/home/magicbox/config/rclone-nzbdav/rclone.conf:/config/rclone/rclone.conf"
+              ];
+            };
+            nzbdav-rclone.out.service = {
               security_opt = [
                 "apparmor=unconfined"
               ];
@@ -242,13 +324,15 @@
               ];
               depends_on = [
                 "zurg"
+                "rclone"
               ];
               volumes = [
                 "/home/magicbox/config/jellyfin:/config"
                 "/home/magicbox/data/jellyfin:/cache"
                 "/home/magicbox/media:/data"
                 "/home/magicbox/manual-media:/data-ro"
-                "/mnt/zurg:/media"
+                "/mnt/zurg:/media:rshared"
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
               ];
             };
             jellyfin.out.service = {
@@ -303,6 +387,7 @@
               volumes = [
                 "/home/magicbox/config/sonarr:/config"
                 "/home/magicbox/media:/data"
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
               ];
             };
             radarr.service = {
@@ -323,6 +408,7 @@
               volumes = [
                 "/home/magicbox/config/radarr:/config"
                 "/home/magicbox/media:/data"
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
               ];
             };
             lidarr.service = {
@@ -343,6 +429,7 @@
               volumes = [
                 "/home/magicbox/config/lidarr:/config"
                 "/home/magicbox/media:/data"
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
               ];
             };
             mylar.service = {
@@ -363,6 +450,7 @@
               volumes = [
                 "/home/magicbox/config/mylar:/config"
                 "/home/magicbox/media:/data"
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
               ];
             };
             bazarr.service = {
@@ -384,6 +472,7 @@
               volumes = [
                 "/home/magicbox/config/bazarr:/config"
                 "/home/magicbox/media:/data"
+                "/mnt/nzbdav:/mnt/nzbdav:rshared"
               ];
             };
             sabnzbd.service = {

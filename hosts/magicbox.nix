@@ -43,7 +43,7 @@
         cifs_opts = "uid=1000,gid=100,file_mode=0664,dir_mode=0775";
       in ["${automount_opts},${cifs_opts},credentials=/etc/nixos/smb-secrets"];
     };
-    nix.settings.trusted-users = [ "nixos" "nea" "magicbox" ];
+    nix.settings.trusted-users = ["nixos" "nea" "magicbox"];
 
     programs.nix-ld = {
       enable = true;
@@ -65,21 +65,12 @@
       mkdir -p /home/magicbox/config/lidarr
       mkdir -p /home/magicbox/config/sabnzbd
       mkdir -p /home/magicbox/config/jellyfin
-      mkdir -p /home/magicbox/config/caddy
-      mkdir -p /home/magicbox/config/zurg-testing
-      mkdir -p /home/magicbox/config/mylar
-      mkdir -p /home/magicbox/config/bazarr
-      
       # Create media directory in the CIFS share (ensure mount is available)
       mkdir -p /mnt/share/media
       mkdir -p /mnt/share/media/movies
       mkdir -p /mnt/share/media/tv
       mkdir -p /mnt/share/media/music
       mkdir -p /mnt/share/media/usenet
-    
-
-      mkdir -p /mnt/zurg
-      
       # Set ownership for local directories
       chown -R 1000:100 /home/magicbox/config
       chown -R 1000:100 /home/magicbox/data
@@ -90,10 +81,7 @@
       # Note: CIFS permissions depend on mount options and server configuration
       chown -R 1000:100 /mnt/share/media || true
       chmod -R 755 /mnt/share/media || true
-
-      chown -R 1000:100 /mnt/zurg || true
-      chmod -R 755 /mnt/zurg || true
-      ''; 
+    '';
 
     users.users.magicbox = {
       isNormalUser = true;
@@ -187,7 +175,7 @@
         };
       };
       projects.magicbox = {
-        serviceName =  "magicbox";
+        serviceName = "magicbox";
         settings = {
           project.name = "magicbox";
           networks.magicbox-network = {
