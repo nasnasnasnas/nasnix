@@ -1,0 +1,8 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Explicitly force shell scripts to use LF (Unix) line endings.
+# This prevents Windows git clients from converting them to CRLF.
+*.sh text eol=lf
+*.bash text eol=lf
+*.nix text eol=lf

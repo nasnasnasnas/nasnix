@@ -178,8 +178,8 @@
               environment = {
                 PORT = "8080";
               };
-              ports = [
-                "3001:8080"
+              networks = [
+                "magicbox-network"
               ];
               volumes = [
                 "/home/magicbox/data/termix:/app/data"
