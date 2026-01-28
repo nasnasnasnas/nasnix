@@ -1,0 +1,1 @@
+sudo nixos-rebuild switch --flake .#magicbox --target-host root@10.177.177.39 --verbose --use-substitutes

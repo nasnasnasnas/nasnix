@@ -116,6 +116,7 @@
               import (if loaded.useUnstable or false then nixpkgs-unstable else nixpkgs) {
                 system = loaded.systemType;
                 config.allowUnfree = true;
+                config.nvidia.acceptLicense = true;
                 config.permittedInsecurePackages = [
                   "olm-3.2.16"
                 ];
@@ -125,6 +126,7 @@
               import nixpkgs-unstable {
                 system = loaded.systemType;
                 config.allowUnfree = true;
+                config.nvidia.acceptLicense = true;
                 config.permittedInsecurePackages = [
                   "olm-3.2.16"
                 ];

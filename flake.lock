@@ -10,7 +10,7 @@
       },
       "locked": {
         "lastModified": 1767581175,
-        "narHash": "sha256-d9ztdDD4EIbsGbERzXhg6Vlo7zMChjpZci4IrS0hSAY=",
+        "narHash": "sha256-Qd9ztdDD4EIbsGbERzXhg6Vlo7zMChjpZci4IrS0hSAY=",
         "owner": "hercules-ci",
         "repo": "arion",
         "rev": "3534dd9d0f32c7dbee4f87378d4c95ffcd8838c5",

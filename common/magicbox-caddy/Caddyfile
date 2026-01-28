@@ -1,23 +1,98 @@
-http://prowlarr.local.nea.rip {
+https://prowlarr.nea.rip {
     reverse_proxy prowlarr:9696
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
 }
 
-http://radarr.local.nea.rip {
+https://radarr.nea.rip {
     reverse_proxy radarr:7878
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
 }
 
-http://sonarr.local.nea.rip {
+https://sonarr.nea.rip {
     reverse_proxy sonarr:8989
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
 }
 
-http://lidarr.local.nea.rip {
+https://lidarr.nea.rip {
     reverse_proxy lidarr:8686
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
 }
 
-http://sabnzbd.local.nea.rip {
+https://sabnzbd.nea.rip {
     reverse_proxy sabnzbd:8080
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
 }
 
-http://localhost {
-    reverse_proxy sabnzbd:8080
+https://mylar.nea.rip {
+    reverse_proxy mylar:8090
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
+}
+
+https://bazarr.nea.rip {
+    reverse_proxy bazarr:6767
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
+}
+
+https://stream.nea.rip {
+    reverse_proxy jellyfin:8096
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
+}
+
+https://request.nea.rip {
+    reverse_proxy jellyseerr:5055
+
+    tls {
+        dns cloudflare {
+            zone_token {env.CF_ZONE_TOKEN}
+            api_token {env.CF_API_TOKEN}
+        }
+    }
 }

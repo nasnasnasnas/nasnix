@@ -10,8 +10,14 @@
 
   modules.starship.enable = true;
 
-  home.file."magicbox/config/caddy".source = "${inputs.self}/common/magicbox-caddy";
-  home.file."magicbox/config/caddy".recursive = true;
+  # home.file."magicbox/config/caddy".source = "${inputs.self}/common/magicbox-caddy";
+  # home.file."magicbox/config/caddy".recursive = true;
+
+  home.shell.enableBashIntegration = true;
+  home.shellAliases = {
+    "ssh" = "ssh.exe";
+  };
+
 
   # This value determines the home Manager release that your
   # configuration is compatible with. This helps avoid breakage
