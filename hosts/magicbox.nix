@@ -8,7 +8,7 @@
   }: {
     inherit (self) systemType;
 
-    usersToExclude = ["saige" "nixos"]; # Exclude these users from users/globals
+    usersToExclude = ["leah" "nea" "nixos"]; # Exclude these users from users/globals
 
     imports = [
       inputs.arion.nixosModules.arion
@@ -47,7 +47,6 @@
 
     programs.nix-ld = {
       enable = true;
-      #package = pkgs.nix-ld-rs; # only for NixOS 24.05
     };
 
     modules.fd.enable = true; # Enable fd file search

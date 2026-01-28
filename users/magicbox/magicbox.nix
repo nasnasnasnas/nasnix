@@ -2,10 +2,11 @@
   config,
   pkgs,
   inputs,
+  lib,
   ...
 }: {
   home.username = "magicbox";
-  home.homeDirectory = "/home/magicbox";
+  home.homeDirectory = lib.mkForce "/home/magicbox";
 
   modules.starship.enable = true;
 

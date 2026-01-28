@@ -15,25 +15,14 @@
     {
       inherit (self) systemType;
 
-      imports = [
-        # Include the results of the hardware scan.
-        # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
-        (modulesPath + "/installer/scan/not-detected.nix")
-        inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
-      ];
 
       services.fwupd.enable = true;
 
       # Bootloader.
-      boot.loader.systemd-boot.enable = true;
-      boot.loader.efi.canTouchEfiVariables = true;
+    
 
-      boot.initrd.kernelModules = [ "amdgpu" ];
-
-      boot.kernelPackages = pkgs.linuxPackages_latest;
-
-      boot.initrd.luks.devices."luks-4605a5aa-60f0-4ba3-8ed1-7925f881670d".device =
-        "/dev/disk/by-uuid/4605a5aa-60f0-4ba3-8ed1-7925f881670d";
+      #boot.initrd.luks.devices."luks-5db81415-d81e-44c9-a833-6467c781ed26".device =
+        #"/dev/disk/by-uuid/5db81415-d81e-44c9-a833-6467c781ed26";
 
       #    hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
@@ -112,6 +101,9 @@
         extraGroups = [
           "networkmanager"
           "wheel"
+          # winapps
+          "kvm"
+          "libvirtd"
         ];
         shell = pkgs.fish;
         packages = with pkgs; [
@@ -125,16 +117,26 @@
         extraGroups = [
           "networkmanager"
           "wheel"
+          # winapps
+          "kvm"
+          "libvirtd"
         ];
+        shell = pkgs.fish;
+      };
+
+      nix.settings = {
+        eval-cores = 0;
       };
 
       # Install firefox.
       programs.firefox.enable = true;
       programs._1password.enable = true;
       programs._1password-gui.enable = true;
-      programs._1password-gui.polkitPolicyOwners = [ "leah" ];
+      programs._1password-gui.polkitPolicyOwners = [ "nea" ];
       programs.steam.enable = true;
       programs.kdeconnect.enable = true;
+
+      programs.dconf.enable = true;
 
       environment.etc = {
         "1password/custom_allowed_browsers" = {
@@ -146,6 +148,9 @@
         };
       };
 
+      virtualisation.libvirtd.enable = true;
+      programs.virt-manager.enable = true;
+
       # Allow unfree packages
       nixpkgs.config.allowUnfree = true;
 
@@ -153,7 +158,7 @@
       # $ nix search wget
       environment.systemPackages = with pkgs; [
         #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-        wget
+        #  wget
         git
         gh
         bun
@@ -164,42 +169,42 @@
         jetbrains-toolbox
         vesktop
         pkgs-unstable.element-desktop
-        pkgs-unstable.nheko
+        #      pkgs-unstable.nheko
         # pkgs-unstable.fluffychat
         microsoft-edge
-        neofetch
         fastfetch
-        hyfetch
         prismlauncher
         lunar-client
         powertop
         rustup
         epiphany
         seahorse
-        (catppuccin-sddm.override {
-          flavor = "mocha";
-          #        accent = "lavender";
-          font = "Noto Sans";
-          fontSize = "13";
-          #        background = "${./wallpaper.png}";
-          loginBackground = true;
-        })
-
         inputs.zen-browser.packages."${system}".default
-        pkgs-unstable.floorp-bin
-        pkgs-unstable.ollama
         pkgs-unstable.kdePackages.kamoso
         cheese
         wl-clipboard
         libreoffice-fresh
-        # libreoffice-collabora
-        onlyoffice-desktopeditors
         rustup
         clang
         github-desktop
         gh
-        fuzzel
-        waybar
+        nvs
+
+
+        # winapps
+        dnsmasq
+        inputs.winapps.packages.x86_64-linux.winapps
+        inputs.winapps.packages.x86_64-linux.winapps-launcher
+        # curl
+        # dialog
+        # iproute2
+        # libnotify
+        # netcat-openbsd
+        # pkgs-unstable.freerdp
+
+        spotify
+
+        whitesur-icon-theme
 
         nil
         powershell
@@ -227,18 +232,22 @@
         flyctl
 
         inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
-        whitesur-icon-theme
-        flameshot
-        easyeffects
-
-        nextdns
-        bottles
+        adw-gtk3
+        kdePackages.qt6ct
       ];
 
+
+      # winapps
+      environment.variables = {
+        LIBVIRT_DEFAULT_URI = "qemu:///system";
+      };
+
+      programs.bash.enable = true;
       programs.zsh.enable = true;
       programs.fish.enable = true;
 
-      programs.alvr.enable = true;
+      services.envfs.enable = true;
+      programs.nix-ld.enable = true;
 
       # Enable the COSMIC desktop environment
       services.desktopManager.cosmic.enable = true;
@@ -246,21 +255,15 @@
       programs.niri.enable = true;
       services.xserver.enable = true;
       services.xserver.xkb.options = "terminate:";
-      services.displayManager.sddm = {
-        theme = "breeze"; # -lavender";
-        enable = false;
-        enableHidpi = true;
-        wayland.enable = true;
-      };
       services.displayManager.cosmic-greeter.enable = true;
 
-      services.tailscale.enable = true;
-      services.tailscale.package = pkgs-unstable.tailscale;
-      networking.nameservers = [
-        "100.100.100.100"
-        "1.1.1.1"
-      ];
-      networking.search = [ "rockhopper-butterfly.ts.net" ];
+    #  services.tailscale.enable = true;
+  #    services.tailscale.package = pkgs-unstable.tailscale;
+  #    networking.nameservers = [
+    #    "100.100.100.100"
+   #     "1.1.1.1"
+   #   ];
+   #   networking.search = [ "rockhopper-butterfly.ts.net" ];
 
       system.autoUpgrade = {
         enable = true;
@@ -271,6 +274,13 @@
         dates = "04:00";
         randomizedDelaySec = "45min";
         allowReboot = true;
+      };
+    
+      environment.sessionVariables = {
+        QT_QPA_PLATFORM = "wayland;xcb";
+        QT_QPA_PLATFORMTHEME = "qt5ct";
+        QT_STYLE_OVERRIDE = "Fusion";
+        QS_ICON_THEME = "WhiteSur-dark";
       };
 
       nix.gc = {
@@ -286,13 +296,9 @@
 
       # use gnome keyring
       services.gnome.gnome-keyring.enable = true;
-      security.pam.services = {
-        greetd.enableGnomeKeyring = true;
-        greetd-password.enableGnomeKeyring = true;
-        login.enableGnomeKeyring = true;
-      };
+      security.pam.services.login.enableGnomeKeyring = true;
       security.pam.services.swaylock = { };
-      programs.seahorse.enable = true;
+      #    programs.seahorse.enable = true;
 
       services.tlp.enable = false;
       services.tuned = {
@@ -307,23 +313,16 @@
         enableGraphical = true;
       };
 
-      services.geoclue2 = {
-        submitData = true;
-        submissionNick = "puppyleah";
-      };
+     # services.geoclue2 = {
+     #   submitData = true;
+    #    submissionNick = "puppyleah";
+    #  };
 
-      environment.sessionVariables = {
-        NIXOS_OZONE_WL = "1";
-        QT_QPA_PLATFORM = "wayland;xcb";
-        QT_QPA_PLATFORMTHEME = "qt5ct";
-        QT_STYLE_OVERRIDE = "Fusion";
-        QS_ICON_THEME = "WhiteSur-dark";
-      };
+      environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
       services.flatpak.enable = true;
       services.flatpak.packages = [
-        "org.vinegarhq.Sober"
-        "org.vinegarhq.Vinegar"
+
       ];
 
       fonts.enableDefaultPackages = true;
@@ -334,14 +333,6 @@
         liberation_ttf
         nerd-fonts.jetbrains-mono
       ];
-
-      programs.direnv.enable = true;
-
-      programs.gamescope = {
-        enable = true;
-        capSysNice = true;
-      };
-      programs.steam.gamescopeSession.enable = true;
 
       # Some programs need SUID wrappers, can be configured further or are
       # started in user sessions.
@@ -360,12 +351,7 @@
       # networking.firewall.allowedTCPPorts = [ ... ];
       # networking.firewall.allowedUDPPorts = [ ... ];
       # Or disable the firewall altogether.
-      networking.firewall.enable = false;
-
-      services.nextdns = {
-        enable = true;
-        arguments = [ "-config" "3a5b4a" "-cache-size" "10MB" ];
-      };
+      # networking.firewall.enable = false;
 
       # This value determines the NixOS release from which the default
       # settings for stateful data, like file locations and database versions

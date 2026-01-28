@@ -2,16 +2,23 @@
   description = "NAS Nix";
 
   inputs = {
-    # todo: try unstable?
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11"; # nixos-unstable
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-25.11"; #release-25.05
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    home-manager-unstable = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     haumea = {
@@ -47,6 +54,20 @@
       # to have it up-to-date or simply don't specify the nixpkgs input
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
+
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    winapps = {
+      url = "github:winapps-org/winapps";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 
   outputs = inputs @ {
@@ -55,6 +76,10 @@
     nixpkgs-unstable,
     nix-darwin,
     home-manager,
+    home-manager-unstable,
+    nix-flatpak,
+    determinate,
+    nix-cachyos-kernel,
     haumea,
     ...
   }: let
@@ -88,10 +113,13 @@
           (builtins.mapAttrs (name: hasDefault:
             if name == "pkgs" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then
-              import nixpkgs {
+              import (if loaded.useUnstable or false then nixpkgs-unstable else nixpkgs) {
                 system = loaded.systemType;
                 config.allowUnfree = true;
                 config.nvidia.acceptLicense = true;
+                config.permittedInsecurePackages = [
+                  "olm-3.2.16"
+                ];
               }
             else if name == "pkgs-unstable" && builtins.isAttrs loaded && builtins.hasAttr "systemType" loaded
             then
@@ -99,6 +127,9 @@
                 system = loaded.systemType;
                 config.allowUnfree = true;
                 config.nvidia.acceptLicense = true;
+                config.permittedInsecurePackages = [
+                  "olm-3.2.16"
+                ];
               }
             else if name == "modulesPath"
             then "${nixpkgs}/nixos/modules"
@@ -168,6 +199,9 @@
           nixpkgsToUse = if configuration.useUnstable or false
             then nixpkgs-unstable
             else nixpkgs;
+          homeManagerToUse = if configuration.useUnstable or false
+            then home-manager-unstable
+            else home-manager;
         in
           if builtins.match ".+-linux" system != null
           then
@@ -180,8 +214,20 @@
                 inherit hostname;
                 inherit system;
                 modules = importedModules.nixos;
+                nixpkgs = nixpkgsToUse;
               };
               modules = [
+                determinate.nixosModules.default
+
+                (
+                  { pkgs, ... }:
+                  {
+                    nixpkgs.overlays = [
+                      nix-cachyos-kernel.overlays.default
+                    ];
+                  }
+                )
+
                 # Load the hardware configuration if it exists from the hardware directory
                 (
                   if builtins.hasAttr hostname importedHardware
@@ -197,7 +243,9 @@
 
                 (builtins.removeAttrs configuration ["systemType" "usersToExclude" "useUnstable"]) # Remove our own custom attributes but pass configuration
 
-                home-manager.nixosModules.home-manager
+                nix-flatpak.nixosModules.nix-flatpak
+
+                homeManagerToUse.nixosModules.home-manager
                 {
                   home-manager.useGlobalPkgs = true;
                   home-manager.useUserPackages = true;
@@ -249,7 +297,7 @@
             }
           else null
       )
-      importedHosts;
+      (nixpkgs.lib.filterAttrs (k: v: nixpkgs.lib.hasSuffix "linux" v.systemType) importedHosts);
 
     darwinConfigurations =
       builtins.mapAttrs (
@@ -337,6 +385,6 @@
             }
           else null
       )
-      importedHosts;
+      (nixpkgs.lib.filterAttrs (k: v: nixpkgs.lib.hasSuffix "darwin" v.systemType) importedHosts);
   };
 }

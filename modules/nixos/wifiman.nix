@@ -24,43 +24,74 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      (pkgs.stdenv.mkDerivation rec {
-         pname = "wifiman";
-         version = "1.1.3";
+      (let
+         wifimanPkg = pkgs.stdenv.mkDerivation rec {
+           pname = "wifiman";
+           version = "1.2.7";
 
-         src = pkgs.fetchurl {
-           url = "https://desktop.wifiman.com/wifiman-desktop-${version}-amd64.deb";
-           hash = "sha256-y//hyqymtgEdrKZt3milTb4pp+TDEDQf6RehYgDnhzA=";
-         };
+           src = pkgs.fetchurl {
+             url = "https://desktop.ea.wifiman.com/wifiman-desktop-${version}-amd64.deb";
+             hash = "sha256-aHGtifGEyNfA/ixDoxzifyVJBmbxdogTlhxR5uuoZNQ=";
+           };
 
-         nativeBuildInputs = [
-           pkgs.autoPatchelfHook
-           pkgs.dpkg
-         ];
+           nativeBuildInputs = [
+             pkgs.dpkg
+           ];
 
-         buildInputs = [
-          pkgs.glib
-          pkgs.openssl
-          pkgs.webkitgtk_4_0
-          pkgs.gtk3
-          pkgs.gcc-unwrapped
-         ];
+           unpackPhase = "true";
 
-
-         unpackPhase = "true";
-
-         installPhase = ''
+           installPhase = ''
              mkdir -p $out
              dpkg -x $src $out
-             cp -av $out/usr/* $out
-             rm -rf $out/usr
+             if [ -d "$out/usr" ]; then
+               cp -av $out/usr/* $out
+               rm -rf $out/usr
+             fi
            '';
 
-         meta = with lib; {
-           homepage = "https://ui.com";
-           description = "wifiman";
-           platforms = platforms.linux;
+           meta = with lib; {
+             homepage = "https://ui.com";
+             description = "wifiman (extracted payload)";
+             platforms = platforms.linux;
+           };
          };
+         wifimanWrapper = pkgs.writeShellScriptBin "wifiman-wrapper" ''
+           set -euo pipefail
+           DAEMON="${wifimanPkg}/lib/wifiman-desktop/wifiman-desktopd"
+           APP="${wifimanPkg}/bin/wifiman-desktop"
+
+           # Start the daemon if not already running
+           if [ -x "$DAEMON" ]; then
+             if ! pgrep -f "$DAEMON" >/dev/null 2>&1; then
+               "$DAEMON" &
+               DPID=$!
+               cleanup() { kill "$DPID" 2>/dev/null || true; }
+               trap cleanup EXIT INT TERM
+             fi
+           fi
+
+           exec "$APP" "$@"
+         '';
+       in pkgs.buildFHSEnv {
+         name = "wifiman";
+         targetPkgs = pkgs: with pkgs; [
+           glib
+           openssl
+           webkitgtk_4_1
+           gtk3
+           gcc-unwrapped
+           pango
+           gdk-pixbuf
+           cairo
+           libsoup_3
+           xdg-utils
+           desktop-file-utils
+           libayatana-appindicator
+           libdbusmenu-gtk3
+           wirelesstools
+           iw
+         ];
+         runScript = "${wifimanWrapper}/bin/wifiman-wrapper";
        })
     ];
   };

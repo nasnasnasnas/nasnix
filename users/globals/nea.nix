@@ -12,30 +12,32 @@
 
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
-  home.username = "leah";
-  home.homeDirectory = lib.mkForce "/home/leah";
+  home.username = "nea";
+  home.homeDirectory = lib.mkForce "/home/nea";
 
   programs.zsh.enable = true;
-  programs.fish.enable = true;
   programs.git = {
     enable = true;
     signing = {
-      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII/tUwFHraeGdHJFOpus9CmYKOVNulm6OeZlD5VBJfjF";
+      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMA24bYEOA0Y0wtbXsra/gG5YXWnFSbnSpmBXp86JmC/";
       format = "ssh";
       signByDefault = true;
       signer = "/run/current-system/sw/bin/op-ssh-sign";
     };
     settings.user = {
-      name = "leah";
-      email = "catgirl@catgirlin.space";
+      name = "nea";
+      email = "git@nea.dev";
     };
   };
 
-  xdg.configFile."niri/config.kdl".source = ../../common/leah/niri.kdl;
-  xdg.configFile."waybar" = {
-    source = ../../common/leah/waybar/.;
-    recursive = true;
+  programs.gh = {
+    enable = true;
+    gitCredentialHelper = {
+      enable = true;
+    };
   };
+
+  xdg.configFile."niri/config.kdl".source = ../../common/nea/niri.kdl;
 
   modules.starship.enable = true;
   programs.starship = {
@@ -56,13 +58,21 @@
     pkgs.htop
   ];
 
-  home.file.".cache/noctalia/wallpapers.json" = {
-    text = builtins.toJSON {
-      defaultWallpaper = ../../common/nas-flag-wallpaper.png;
-      wallpapers = {
-        "DP-1" = ../../common/nas-flag-wallpaper.png;
-      };
-    };
+  programs.fish = {
+    enable = true;
+    interactiveShellInit = ''
+      set -U fish_greeting # Disable greeting
+    '';
+    plugins = [
+      { name = "nvm"; src = pkgs.fishPlugins.nvm.src; }
+    ];
+  };
+
+  dconf.settings = {
+   "org/gnome/desktop/interface" = {
+     color-scheme = "prefer-dark";
+     gtk-theme = "adw-gtk3";
+   };
   };
 
   programs.noctalia-shell.enable = true;
@@ -70,7 +80,7 @@
     settingsVersion = 26;
 
     general = {
-      avatarImage = "/home/leah/pfp.jpg";
+     # avatarImage = "/home/nea/pfp.jpg";
       showHibernateOnLockScreen = true;
     };
 
@@ -96,13 +106,13 @@
     };
 
     screenRecorder = {
-      directory = "/home/leah/Videos";
+      directory = "/home/nea/Videos";
     };
 
     wallpaper = {
       enabled = true;
       overviewEnabled = true;
-      directory = "/home/leah/Pictures/Wallpapers";
+      directory = "/home/nea/Pictures/Wallpapers";
       fillColor = "#b89cff";
     };
 
@@ -143,24 +153,31 @@
     };
 
     colorSchemes = {
-      predefinedScheme = "Tokyo Night";
-      darkMode = false;
-      schedulingMode = "location";
+      predefinedScheme = "Lilac AMOLED";
+      darkMode = true;
+      schedulingMode = "off";
       matugenSchemeType = "scheme-content";
       generateTemplatesForPredefined = true;
     };
 
+    templates = {
+      gtk = true;
+      qt = true;
+      ghostty = true;
+      code = true;
+      telegram = true;
+      niri = true;
+    };
+
     bar = {
-      backgroundOpacity = 0.1;
+      position = "bottom";
+      backgroundOpacity = 0.8;
       density = "comfortable";
       outerCorners = false;
+      showCapsule = true;
+      marginVertical = 4;
       widgets = {
         left = [
-          {
-            icon = "rocket";
-            id = "CustomButton";
-            leftClickExec = "noctalia-shell ipc call launcher toggle";
-          }
           {
             colorizeIcons = false;
             hideUnoccupied = true;
@@ -168,26 +185,19 @@
             labelMode = "index";
             showLabelsOnlyWhenOccupied = false;
           }
-          {
-            diskPath = "/";
-            id = "SystemMonitor";
-            showCpuTemp = true;
-            showCpuUsage = true;
-            showDiskUsage = true;
-            showMemoryAsPercent = false;
-            showMemoryUsage = true;
-            showNetworkStats = true;
-            usePrimaryColor = true;
-          }
+        ];
+        center = [
           {
             colorizeIcons = false;
             hideMode = "hidden";
             id = "ActiveWindow";
-            maxWidth = 250;
+            maxWidth = 500;
             scrollingMode = "hover";
             showIcon = true;
             useFixedWidth = false;
           }
+        ];
+        right = [
           {
             hideMode = "hidden";
             hideWhenIdle = false;
@@ -201,8 +211,17 @@
             useFixedWidth = false;
             visualizerType = "linear";
           }
-        ];
-        right = [
+          {
+            diskPath = "/";
+            id = "SystemMonitor";
+            showCpuTemp = false;
+            showCpuUsage = true;
+            showDiskUsage = false;
+            showMemoryAsPercent = false;
+            showMemoryUsage = true;
+            showNetworkStats = false;
+            usePrimaryColor = true;
+          }
           { id = "ScreenRecorder"; }
           {
             blacklist = [ ];
@@ -217,19 +236,8 @@
             showUnreadBadge = true;
           }
           {
-            deviceNativePath = "";
-            displayMode = "alwaysShow";
-            id = "Battery";
-            warningThreshold = 30;
-          }
-          { id = "PowerProfile"; }
-          {
             displayMode = "alwaysShow";
             id = "Volume";
-          }
-          {
-            displayMode = "alwaysShow";
-            id = "Brightness";
           }
           {
             formatHorizontal = "h:mm:ss AP";
@@ -255,7 +263,6 @@
             useDistroLogo = true;
           }
         ];
-        center = [ ];
       };
     };
 
