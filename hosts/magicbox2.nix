@@ -171,6 +171,17 @@
                 "/home/magicbox/data/caddy:/data"
               ];
             };
+            termix.service = {
+              container_name = "termix";
+              image = "ghcr.io/lukegus/termix:latest";
+              restart = "unless-stopped";
+              environment = {
+                PORT = "8080";
+              };
+              volumes = [
+                "/home/magicbox/data/termix:/app/data"
+              ];
+            };
             zurg.service = {
               container_name = "zurg";
               image = "ghcr.io/debridmediamanager/zurg-testing:latest";
