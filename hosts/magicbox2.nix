@@ -8,7 +8,7 @@
   }: {
     inherit (self) systemType;
 
-    usersToExclude = ["saige" "nixos"]; # Exclude these users from users/globals
+    usersToExclude = ["leah" "nea" "nixos"]; # Exclude these users from users/globals
 
     imports = [
       inputs.arion.nixosModules.arion
@@ -178,6 +178,9 @@
               environment = {
                 PORT = "8080";
               };
+              ports = [
+                "3001:8080"
+              ];
               volumes = [
                 "/home/magicbox/data/termix:/app/data"
               ];
