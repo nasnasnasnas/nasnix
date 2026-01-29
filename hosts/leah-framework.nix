@@ -223,6 +223,7 @@
         kdePackages.dolphin-plugins
 
         protonup-qt
+      	protontricks
         libnotify
         flyctl
 
@@ -233,6 +234,10 @@
 
         nextdns
         bottles
+
+        zulu25
+
+        claude-code
       ];
 
       programs.zsh.enable = true;
@@ -261,6 +266,17 @@
         "1.1.1.1"
       ];
       networking.search = [ "rockhopper-butterfly.ts.net" ];
+
+      systemd.user.services.tailscale-systray = {
+        enable = true;
+        after = [ "tailscaled.service" ];
+        wantedBy = [ "default.target" ];
+        description = "Tailscale Systray";
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = ''${pkgs-unstable.tailscale}/bin/tailscale systray'';
+        };
+      };
 
       system.autoUpgrade = {
         enable = true;
@@ -293,6 +309,7 @@
       };
       security.pam.services.swaylock = { };
       programs.seahorse.enable = true;
+      security.polkit.enable = true;
 
       services.tlp.enable = false;
       services.tuned = {

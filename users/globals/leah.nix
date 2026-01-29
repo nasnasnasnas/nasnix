@@ -178,6 +178,8 @@
             showMemoryUsage = true;
             showNetworkStats = true;
             usePrimaryColor = true;
+            compactMode = false;
+            showLoadAverage = true;
           }
           {
             colorizeIcons = false;
