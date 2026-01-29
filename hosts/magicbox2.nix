@@ -591,7 +591,7 @@
               command = [
                 "-pyroscope.data-path=/var/lib/pyroscope"
               ];
-            }
+            };
           };
         };
       };
