@@ -281,7 +281,7 @@ layout {
 //spawn-at-startup "waybar"
 //spawn-at-startup "mako"
 spawn-at-startup "noctalia-shell"
-spawn-sh-at-startup "/nix/store/$(ls -la /nix/store | grep 'polkit-gnome' | grep '^d' | awk '{print $9}')/libexec/polkit-gnome-authentication-agent-1"
+spawn-sh-at-startup "exec /nix/store/*-polkit-gnome-*/libexec/polkit-gnome-authentication-agent-1"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
