@@ -139,6 +139,16 @@
     #   };
     # };
 
+    services.alloy = {
+      enable = true;
+    };
+
+    systemd.tmpfiles.rules = [
+      # Syntax: Type Path Mode User Group Age Argument
+      "L+ /etc/alloy - - - - /home/magicbox/config/alloy"
+    ];
+
+
     virtualisation.arion = {
       backend = "docker";
       
@@ -509,6 +519,79 @@
                 "/home/magicbox/media/usenet:/data/usenet:rw"
               ];
             };
+            grafana.service = {
+              container_name = "grafana";
+              image = "grafana/grafana:latest";
+              restart = "unless-stopped";
+              environment = {
+                GF_SECURITY_ADMIN_USER = "admin";
+                GF_SECURITY_ADMIN_PASSWORD = "adminpassword";
+                GF_SERVER_ROOT_URL = "https://grafana.szpunar.cloud";
+                GF_PLUGINS_PREINSTALL = "grafana-pyroscope-app,grafana-lokiexplore-app";
+                TZ = "America/Indiana/Indianapolis";
+              };
+              networks = [
+                "magicbox-network"
+              ];
+              volumes = [
+                "/home/magicbox/data/grafana:/var/lib/grafana"
+              ];
+            };
+            victoriametrics.service = {
+              container_name = "victoriametrics";
+              image = "victoriametrics/victoria-metrics:latest";
+              restart = "unless-stopped";
+              environment = {
+                TZ = "America/Indiana/Indianapolis";
+              };
+              networks = [
+                "magicbox-network"
+              ];
+              volumes = [
+                "/home/magicbox/data/victoriametrics:/victoria-metrics-data"
+              ];
+              command = [
+                "--storageDataPath=/victoria-metrics-data"
+                "--httpListenAddr=:8428"
+                "--selfScrapeInterval=5s"
+              ];
+            };
+            victorialogs.service = {
+              container_name = "victorialogs";
+              image = "victoriametrics/victoria-logs:latest";
+              restart = "unless-stopped";
+              environment = {
+                TZ = "America/Indiana/Indianapolis";
+              };
+              networks = [
+                "magicbox-network"
+              ];
+              volumes = [
+                "/home/magicbox/data/victorialogs:/victoria-logs-data"
+              ];
+              command = [
+                "--storageDataPath=/victoria-logs-data"
+                "--httpListenAddr=:9000"
+                "--selfScrapeInterval=5s"
+              ];
+            };
+            pyroscope.service = {
+              container_name = "pyroscope";
+              image = "pyroscope/pyroscope:latest";
+              restart = "unless-stopped";
+              environment = {
+                TZ = "America/Indiana/Indianapolis";
+              };
+              networks = [
+                "magicbox-network"
+              ];
+              volumes = [
+                "/home/magicbox/data/pyroscope:/var/lib/pyroscope"
+              ];
+              command = [
+                "-pyroscope.data-path=/var/lib/pyroscope"
+              ];
+            }
           };
         };
       };
