@@ -18,7 +18,6 @@
       imports = [
         # Include the results of the hardware scan.
         # ../hardware/saige-macbook-nixos.nix # TODO: use like modules for this or something
-        (modulesPath + "/installer/scan/not-detected.nix")
         inputs.nixos-hardware.nixosModules.framework-amd-ai-300-series
       ];
 
@@ -32,8 +31,7 @@
 
       boot.kernelPackages = pkgs.linuxPackages_latest;
 
-      boot.initrd.luks.devices."luks-4605a5aa-60f0-4ba3-8ed1-7925f881670d".device =
-        "/dev/disk/by-uuid/4605a5aa-60f0-4ba3-8ed1-7925f881670d";
+      boot.initrd.luks.devices."luks-b78f2055-2df8-4686-a08f-414894dab060".device = "/dev/disk/by-uuid/b78f2055-2df8-4686-a08f-414894dab060";
 
       #    hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
