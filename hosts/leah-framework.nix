@@ -222,8 +222,8 @@
         kdePackages.dolphin
         kdePackages.dolphin-plugins
 
-        protonup-qt
-      	protontricks
+        pkgs-unstable.protonup-qt
+      	pkgs-unstable.protontricks
         libnotify
         flyctl
 
@@ -359,6 +359,8 @@
         capSysNice = true;
       };
       programs.steam.gamescopeSession.enable = true;
+
+      services.hardware.bolt.enable = true;
 
       # Some programs need SUID wrappers, can be configured further or are
       # started in user sessions.
