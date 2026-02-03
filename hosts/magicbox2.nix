@@ -21,7 +21,9 @@
       curl
       btop
       fastfetch
+      hyfetch
       nixd
+      ripgrep
       htop
       ffmpeg-full
       dua
@@ -95,7 +97,6 @@
       chmod -R 755 /home/magicbox/media
       chmod -R 755 /home/magicbox/manual-media
 
-      sudo umount -l /mnt/zurg || true
       chown -R 1000:100 /mnt/zurg || true
       chmod -R 755 /mnt/zurg || true
       ''; 
@@ -143,11 +144,36 @@
       enable = true;
     };
 
-    systemd.tmpfiles.rules = [
-      # Syntax: Type Path Mode User Group Age Argument
-      "L+ /etc/alloy - - - - /home/magicbox/config/alloy"
-    ];
+    environment.etc."alloy/config.alloy" = {
+      text = ''
+prometheus.exporter.self "default" {
 
+}
+
+prometheus.scrape "metamonitoring" {
+  targets    = prometheus.exporter.self.default.targets
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+      
+prometheus.remote_write "default" {
+  endpoint {
+    url = "https://victoriametrics.szpunar.cloud/prometheus/api/v1/write"
+  }
+}
+
+logging {
+//   level    = "<LOG_LEVEL>"
+//   format   = "<LOG_FORMAT>"
+  write_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "https://victorialogs.szpunar.cloud/insert/loki/api/v1/push"
+  }
+}
+      '';
+    };
 
     virtualisation.arion = {
       backend = "docker";
@@ -523,18 +549,21 @@
               container_name = "grafana";
               image = "grafana/grafana:latest";
               restart = "unless-stopped";
+              user = "1000:100";
               environment = {
+                PUID = "1000";
+                PGID = "100";
                 GF_SECURITY_ADMIN_USER = "admin";
                 GF_SECURITY_ADMIN_PASSWORD = "adminpassword";
                 GF_SERVER_ROOT_URL = "https://grafana.szpunar.cloud";
-                GF_PLUGINS_PREINSTALL = "grafana-pyroscope-app,grafana-lokiexplore-app";
+                GF_PLUGINS_PREINSTALL = "grafana-pyroscope-app,grafana-lokiexplore-app,victoriametrics-logs-datasource,victoriametrics-metrics-datasource";
                 TZ = "America/Indiana/Indianapolis";
               };
               networks = [
                 "magicbox-network"
               ];
               volumes = [
-                "/home/magicbox/data/grafana:/var/lib/grafana"
+                "/home/magicbox/data/grafana:/var/lib/grafana:rw"
               ];
             };
             victoriametrics.service = {
@@ -542,13 +571,15 @@
               image = "victoriametrics/victoria-metrics:latest";
               restart = "unless-stopped";
               environment = {
+                PUID = "1000";
+                PGID = "100";
                 TZ = "America/Indiana/Indianapolis";
               };
               networks = [
                 "magicbox-network"
               ];
               volumes = [
-                "/home/magicbox/data/victoriametrics:/victoria-metrics-data"
+                "/home/magicbox/data/victoriametrics:/victoria-metrics-data:rw"
               ];
               command = [
                 "--storageDataPath=/victoria-metrics-data"
@@ -561,35 +592,36 @@
               image = "victoriametrics/victoria-logs:latest";
               restart = "unless-stopped";
               environment = {
+                PUID = "1000";
+                PGID = "100";
                 TZ = "America/Indiana/Indianapolis";
               };
               networks = [
                 "magicbox-network"
               ];
               volumes = [
-                "/home/magicbox/data/victorialogs:/victoria-logs-data"
+                "/home/magicbox/data/victorialogs:/victoria-logs-data:rw"
               ];
               command = [
                 "--storageDataPath=/victoria-logs-data"
                 "--httpListenAddr=:9000"
-                "--selfScrapeInterval=5s"
               ];
             };
             pyroscope.service = {
               container_name = "pyroscope";
-              image = "pyroscope/pyroscope:latest";
+              image = "grafana/pyroscope:latest";
               restart = "unless-stopped";
+              user = "1000:100";
               environment = {
+                PUID = "1000";
+                PGID = "100";
                 TZ = "America/Indiana/Indianapolis";
               };
               networks = [
                 "magicbox-network"
               ];
               volumes = [
-                "/home/magicbox/data/pyroscope:/var/lib/pyroscope"
-              ];
-              command = [
-                "-pyroscope.data-path=/var/lib/pyroscope"
+                "/home/magicbox/data/pyroscope:/var/lib/pyroscope:rw"
               ];
             };
           };
