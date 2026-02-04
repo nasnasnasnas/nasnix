@@ -46,6 +46,7 @@
       wget
       jetbrains-toolbox
       vesktop
+      curl
       _1password-cli
       _1password-gui
     ];
