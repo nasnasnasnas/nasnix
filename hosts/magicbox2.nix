@@ -48,7 +48,7 @@
     #     cifs_opts = "uid=1000,gid=100,file_mode=0664,dir_mode=0775";
     #   in ["${automount_opts},${cifs_opts},credentials=/etc/nixos/smb-secrets"];
     # };
-    nix.settings.trusted-users = [ "nixos" "nea" "magicbox" ];
+    nix.settings.trusted-users = ["nixos" "nea" "magicbox"];
 
     programs.nix-ld = {
       enable = true;
@@ -77,16 +77,16 @@
 
       # mkdir -p /home/magicbox/media
       # mkdir -p /home/magicbox/manual-media
-      
+
       # Create media directory in the CIFS share (ensure mount is available)
       # mkdir -p /mnt/share/media
       # mkdir -p /mnt/share/media/movies
       # mkdir -p /mnt/share/media/tv
       # mkdir -p /mnt/share/media/music
       # mkdir -p /mnt/share/media/usenet
-    
+
       # mkdir -p /mnt/zurg
-      
+
       # Set ownership for local directories
       chown -R 1000:100 /home/magicbox/config
       chown -R 1000:100 /home/magicbox/data
@@ -99,16 +99,20 @@
 
       chown -R 1000:100 /mnt/zurg || true
       chmod -R 755 /mnt/zurg || true
-      ''; 
+    '';
 
     users.users.magicbox = {
       isNormalUser = true;
       description = "magicbox";
       extraGroups = ["networkmanager" "wheel" "docker"];
       openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICxMQi0MHfKIz2Fl9zvViseJButXB13nSRQ0qNripZij magicbox@10.177.177.54"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM+9gEtoUZS0D6LAu7Jz8WnIRrKNna2zfH6F7QxzaeZa"
       ];
     };
+
+    users.users.root.openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM+9gEtoUZS0D6LAu7Jz8WnIRrKNna2zfH6F7QxzaeZa"
+    ];
 
     services.openssh.enable = true;
     services.openssh.settings.PermitRootLogin = "yes";
@@ -123,12 +127,10 @@
     programs.fuse.enable = true;
     programs.fuse.userAllowOther = true;
 
-
-
     # services.nomad = {
     #   enable = true;
     #   enableDocker = true;
-      
+
     #   dropPrivileges = false;
 
     #   settings = {
@@ -146,40 +148,40 @@
 
     environment.etc."alloy/config.alloy" = {
       text = ''
-prometheus.exporter.self "default" {
+        prometheus.exporter.self "default" {
 
-}
+        }
 
-prometheus.scrape "metamonitoring" {
-  targets    = prometheus.exporter.self.default.targets
-  forward_to = [prometheus.remote_write.default.receiver]
-}
-      
-prometheus.remote_write "default" {
-  endpoint {
-    url = "https://victoriametrics.szpunar.cloud/prometheus/api/v1/write"
-  }
-}
+        prometheus.scrape "metamonitoring" {
+          targets    = prometheus.exporter.self.default.targets
+          forward_to = [prometheus.remote_write.default.receiver]
+        }
 
-logging {
-//   level    = "<LOG_LEVEL>"
-//   format   = "<LOG_FORMAT>"
-  write_to = [loki.write.default.receiver]
-}
+        prometheus.remote_write "default" {
+          endpoint {
+            url = "https://victoriametrics.szpunar.cloud/prometheus/api/v1/write"
+          }
+        }
 
-loki.write "default" {
-  endpoint {
-    url = "https://victorialogs.szpunar.cloud/insert/loki/api/v1/push"
-  }
-}
+        logging {
+        //   level    = "<LOG_LEVEL>"
+        //   format   = "<LOG_FORMAT>"
+          write_to = [loki.write.default.receiver]
+        }
+
+        loki.write "default" {
+          endpoint {
+            url = "https://victorialogs.szpunar.cloud/insert/loki/api/v1/push"
+          }
+        }
       '';
     };
 
     virtualisation.arion = {
       backend = "docker";
-      
+
       projects.magicbox = {
-        serviceName =  "magicbox";
+        serviceName = "magicbox";
         settings = {
           project.name = "magicbox";
           networks.magicbox-network = {
@@ -193,7 +195,7 @@ loki.write "default" {
               container_name = "caddy";
               image = "ghcr.io/caddybuilds/caddy-cloudflare:latest";
               restart = "unless-stopped";
-              command = [ "caddy" "run" "--config" "/etc/caddy/Caddyfile" "--adapter" "caddyfile" "--envfile" "/etc/caddy/secrets.env" ];
+              command = ["caddy" "run" "--config" "/etc/caddy/Caddyfile" "--adapter" "caddyfile" "--envfile" "/etc/caddy/secrets.env"];
               ports = [
                 "80:80"
                 "443:443"
@@ -289,7 +291,7 @@ loki.write "default" {
               image = "nzbdav/nzbdav:latest";
               restart = "unless-stopped";
               healthcheck = {
-                test = [ "CMD-SHELL" "curl" "-f" "http://localhost:3000/health" "||" "exit" "1" ];
+                test = ["CMD-SHELL" "curl" "-f" "http://localhost:3000/health" "||" "exit" "1"];
                 interval = "1m";
                 retries = 3;
                 start_period = "5s";
@@ -321,7 +323,7 @@ loki.write "default" {
               networks = [
                 "magicbox-network"
               ];
-              depends_on = [ "nzbdav" ];
+              depends_on = ["nzbdav"];
               capabilities = {
                 SYS_ADMIN = true;
               };
@@ -392,8 +394,8 @@ loki.write "default" {
                     devices = [
                       {
                         driver = "cdi";
-                        device_ids = [ "nvidia.com/gpu=all" ];
-                        capabilities = [ "gpu" ];
+                        device_ids = ["nvidia.com/gpu=all"];
+                        capabilities = ["gpu"];
                       }
                     ];
                   };

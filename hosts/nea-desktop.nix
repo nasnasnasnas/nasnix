@@ -109,6 +109,9 @@
         packages = with pkgs; [
           #  thunderbird
         ];
+        openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM+9gEtoUZS0D6LAu7Jz8WnIRrKNna2zfH6F7QxzaeZa"
+        ];
       };
 
       users.users.nea = {
@@ -122,6 +125,9 @@
           "libvirtd"
         ];
         shell = pkgs.fish;
+        openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM+9gEtoUZS0D6LAu7Jz8WnIRrKNna2zfH6F7QxzaeZa"
+        ];
       };
 
       nix.settings = {
@@ -345,7 +351,7 @@
       # List services that you want to enable:
 
       # Enable the OpenSSH daemon.
-      # services.openssh.enable = true;
+      services.openssh.enable = true;
 
       # Open ports in the firewall.
       # networking.firewall.allowedTCPPorts = [ ... ];

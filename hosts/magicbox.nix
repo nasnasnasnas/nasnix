@@ -87,9 +87,13 @@
       description = "magicbox";
       extraGroups = ["networkmanager" "wheel" "docker"];
       openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICxMQi0MHfKIz2Fl9zvViseJButXB13nSRQ0qNripZij magicbox@10.177.177.39"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM+9gEtoUZS0D6LAu7Jz8WnIRrKNna2zfH6F7QxzaeZa"
       ];
     };
+
+    users.users.root.openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM+9gEtoUZS0D6LAu7Jz8WnIRrKNna2zfH6F7QxzaeZa"
+    ];
 
     services.openssh.enable = true;
     services.openssh.settings.PermitRootLogin = "yes";
@@ -185,7 +189,7 @@
               container_name = "caddy";
               image = "ghcr.io/caddybuilds/caddy-cloudflare:latest";
               restart = "unless-stopped";
-              command = [ "caddy" "run" "--config" "/etc/caddy/Caddyfile" "--adapter" "caddyfile" "--envfile" "/etc/caddy/secrets.env" ];
+              command = ["caddy" "run" "--config" "/etc/caddy/Caddyfile" "--adapter" "caddyfile" "--envfile" "/etc/caddy/secrets.env"];
               ports = [
                 "80:80"
                 "443:443"
