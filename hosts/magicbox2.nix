@@ -626,6 +626,27 @@
                 "/home/magicbox/data/pyroscope:/var/lib/pyroscope:rw"
               ];
             };
+            postgres.service = {
+              container_name = "postgres";
+              image = "postgres:latest";
+              restart = "unless-stopped";
+              user = "1000:100";
+              environment = {
+                PUID = "1000";
+                PGID = "100";
+                TZ = "America/Indiana/Indianapolis";
+                POSTGRES_PASSWORD_FILE = "/home/magicbox/config/postgres/passwd";
+              };
+              ports = [
+                "5432:5432"
+              ];
+              networks = [
+                "magicbox-network"
+              ];
+              volumes = [
+                "/home/magicbox/data/postgres:/var/lib/postgresql/data:rw"
+              ];
+            };
           };
         };
       };
