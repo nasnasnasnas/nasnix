@@ -637,7 +637,7 @@
                 PUID = "1000";
                 PGID = "100";
                 TZ = "America/Indiana/Indianapolis";
-                POSTGRES_PASSWORD_FILE = "/home/magicbox/config/postgres/passwd";
+                POSTGRES_PASSWORD_FILE = "/etc/postgresql/passwd";
               };
               ports = [
                 "5432:5432"
@@ -647,6 +647,7 @@
               ];
               volumes = [
                 "/home/magicbox/data/postgres:/var/lib/postgresql/data:rw"
+                "/home/magicbox/config/postgres:/etc/postgresql:rw"
               ];
             };
           };
