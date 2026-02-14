@@ -646,7 +646,7 @@
                 "magicbox-network"
               ];
               volumes = [
-                "/home/magicbox/data/postgres:/var/lib/postgresql/data:rw"
+                "/home/magicbox/data/postgres:/var/lib/postgresql:rw"
                 "/home/magicbox/config/postgres:/etc/postgresql:rw"
               ];
             };
